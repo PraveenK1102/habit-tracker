@@ -17,16 +17,6 @@ type TasksState = {
   taskTrackingId: string;
   selectedDate: string; // Store date as a string in YYYY-MM-DD format
   taskTrackingDetails: TaskMeta; // Details of the currently tracked task
-  taskTrackingDetails: {
-    id: string;
-    task: string;
-    units: string[];
-    default_target: Record<string, any>;
-    type: string;
-    color: string;
-    icon: string;
-    measurable: boolean;
-  };
 };
 
 const initialState: TasksState = {

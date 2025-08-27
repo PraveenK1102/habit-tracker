@@ -1,6 +1,8 @@
 import React, { useRef, useState, useEffect } from 'react';
 import { useTheme } from "next-themes";
 
+const WEEKDAYS = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+
 interface CalendarDate {
   date: Date;
   date_formatted: string;
@@ -25,7 +27,8 @@ function generateWeek(startDate: Date, previousMonth: number): CalendarDate[] {
 
     let currentMonth = d.getMonth();
     const paddedMonth = currentMonth < 9 ? `0${currentMonth + 1}` : `${currentMonth + 1}`;
-    const localDate = `${d.getFullYear()}-${paddedMonth}-${d.getDate()}`;
+    const paddedDay = d.getDate() < 10 ? `0${d.getDate()}` : `${d.getDate()}`;
+    const localDate = `${d.getFullYear()}-${paddedMonth}-${paddedDay}`;
 
     if (!isNextMonthStartCalculated && currentMonth !== previousMonth) {
       previousMonth = currentMonth;
@@ -52,17 +55,17 @@ function generateWeeks(
   const centerStart = getStartOfWeek(centerDate);
   const weeks: CalendarDate[] = [];
 
-  let obj = {previousMonth: null};
+  let monthTracker = {previousMonth: null};
   for (let i = -numWeeksBefore; i <= numWeeksAfter; i++) {
     const weekStart = new Date(centerStart);
     weekStart.setDate(centerStart.getDate() + i * 7);
-    if (obj.previousMonth === null) {
-      obj.previousMonth = weekStart.getMonth()
+    if (monthTracker.previousMonth === null) {
+      monthTracker.previousMonth = weekStart.getMonth()
     }
-    weeks.push(...generateWeek(weekStart, obj.previousMonth));
+    weeks.push(...generateWeek(weekStart, monthTracker.previousMonth));
     const weekEnd = new Date(centerStart);
     weekEnd.setDate(centerStart.getDate() + (i * 7) + 6);
-    obj.previousMonth = weekEnd.getMonth();
+    monthTracker.previousMonth = weekEnd.getMonth();
   }  
   return weeks;
 }
@@ -82,9 +85,7 @@ export default React.memo(function HorizontalWeekCalendar(
   const [selectedDate, setSelectedDate] = useState<Date>(new Date());
   const selectedDateRef = useRef<HTMLDivElement>(null);
   const [weeks, setWeeks] = useState<CalendarDate[]>(() => generateWeeks(selectedDate, 4, 4));
-  const [currentMonth, setCurrentMonth] = useState(new Date().getMonth());
-  const [currentYear, setCurrentYear] = useState(new Date().getFullYear());
-  console.log("Calendar component loaded")
+
   const handleScroll = () => {
     const scrollElement = scrollRef.current;
     if (!scrollElement) return;
@@ -126,7 +127,7 @@ export default React.memo(function HorizontalWeekCalendar(
 
   return (
     <div className="w-full">
-      <div class="mb-3">
+      <div className="mb-3">
         <a
           href="#"
           className="mt-4 text-sm text-blue-500 hover:text-blue-700 py-4"
@@ -138,7 +139,7 @@ export default React.memo(function HorizontalWeekCalendar(
       <div
         ref={scrollRef}
         onScroll={handleScroll}
-        className="flex overflow-x-scroll space-x-2 border rounded bg-white dark:bg-black pb-4 pt-2 text-xs"
+        className="flex overflow-x-scroll space-x-2 border rounded bg-white dark:bg-black py-4 text-xs"
       >
         {weeks.map(({ date = new Date(), date_formatted = '', isNextMonthStarted = false }, index) => {
           let selectedDateTemp = date?.toDateString() === selectedDate?.toDateString();
@@ -159,7 +160,7 @@ export default React.memo(function HorizontalWeekCalendar(
                   ${currentDate === date_formatted ? 'bg-blue-500 text-white' : 'hover:bg-gray-200 dark:hover:bg-gray-700'}`}
               >
                 <div className="font-semibold">{date?.getDate()}</div>
-                <div className="text-xs">{['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'][date?.getDay()]}</div>
+                <div className="text-xs">{WEEKDAYS[date?.getDay()]}</div>
               </div>
             </React.Fragment>
           );

@@ -48,10 +48,13 @@ export function convertUnit(
   } else if (timeConversions[fromTime]?.[toTime] !== undefined) {
     factor = timeConversions[fromTime][toTime];
   }
-
+  let result = 0;
+  let rounded = 0;
   if (factor === undefined) {
-    throw new Error(`Conversion from "${from}" to "${to}" is not supported.`);
+    rounded = 0;
+  } else {
+    result = value * factor;
+    rounded = Number(result.toFixed(2));
   }
-
-  return (value * factor).toFixed(2) as unknown as number;
+  return Number.isInteger(rounded) ? Math.trunc(rounded) : rounded;
 }

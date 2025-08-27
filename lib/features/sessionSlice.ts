@@ -1,9 +1,21 @@
 // features/sessionSlice.ts
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 
+interface User {
+  id: string;
+  email?: string;
+  [key: string]: any;
+}
+
+interface Session {
+  user?: User;
+  access_token?: string;
+  [key: string]: any;
+}
+
 interface SessionState {
-  session: any;
-  user: any;
+  session: Session | null;
+  user: User | null;
 }
 
 const initialState: SessionState = {
@@ -15,10 +27,10 @@ const sessionSlice = createSlice({
   name: 'session',
   initialState,
   reducers: {
-    setSession(state, action: PayloadAction<any>) {
+    setSession(state, action: PayloadAction<Session | null>) {
       state.session = action.payload;
     },
-    setUser(state, action: PayloadAction<any>) {
+    setUser(state, action: PayloadAction<User | null>) {
       state.user = action.payload;
     },
     clearSession(state) {

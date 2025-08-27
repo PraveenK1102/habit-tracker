@@ -18,7 +18,7 @@ function processDateQuery (date: string, taskFrequency: string) {
       from,
       to
     }
-    // query = query.gte('date', from.toISOString()).lte('date', to.toISOString())
+
   } else {
     throw new Error('Unsupported task frequency')
   }
@@ -94,7 +94,7 @@ export async function getTaskTrackingDetails(taskId: string, date: string) {
   return {
     tracking_details: {
       ...data[0],
-      date_fromatted: formattedcreatedDate,
+      date_formatted: formattedcreatedDate,
       updated_time: updatedTimeFormatted,
       task_details: {
         ...taskData,
@@ -136,12 +136,13 @@ export async function createTaskTracking(input: TaskTrackingInput) {
     .from('task_tracking')
     .select('id')
     .eq('task_id', input.task_id)
-    .eq('date', input.date)
-    .single();
+    .eq('date', input.date);
 
-  if (existingTracking) {
+  if (existingTracking && existingTracking.length > 0) {
     throw new Error('Task tracking already exists for this date');
   }
+
+
 
   const { data, error } = await supabase
     .from('task_tracking')
@@ -184,10 +185,9 @@ export async function updateTaskTracking(input: TaskTrackingUpdateInput) {
   const { data: exists, error: checkError } = await supabase
     .from('task_tracking')
     .select('id')
-    .eq('id', input.id)
-    .single();
+    .eq('id', input.id);
 
-  if (checkError || !exists) {
+  if (checkError || !exists || exists.length === 0) {
     throw new Error('Task tracking record not found');
   }
 

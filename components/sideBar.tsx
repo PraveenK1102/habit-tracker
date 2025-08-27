@@ -64,7 +64,7 @@ export default function SideBar(props: { taskId: string; date: string}) {
           console.error('Task not found in Redux store');
         }
       } catch (error) {
-        console.error('Error fetching task tracking details:', error)
+        console.error('Error fetching task tracking details:', error.message || 'Unknown error')
       } finally {
         setLoading(false);
       }
@@ -116,7 +116,7 @@ export default function SideBar(props: { taskId: string; date: string}) {
         console.error('Task not found in Redux store');
       }
     } catch (error) {
-      console.error('Error fetching task tracking details:', error)
+      console.error('Error fetching task tracking details:', error.message || 'Unknown error')
     } finally {
       setLoading(false);
     }
@@ -146,9 +146,9 @@ export default function SideBar(props: { taskId: string; date: string}) {
       if (!response.ok) {
         throw new Error(data.error);
       }
-      console.log('Created tracking:', data);
+
     } catch (error) {
-      console.error('Error creating tracking:', error);
+      console.error('Error creating tracking:', error.message || 'Unknown error');
     } finally {
       fetchTaskTrackingDetails();
     }
@@ -179,9 +179,9 @@ export default function SideBar(props: { taskId: string; date: string}) {
       if (!response.ok) {
         throw new Error(data.error);
       }
-      console.log('Updated tracking:', data);
+
     } catch (error) {
-      console.error('Error updating tracking:', error);
+      console.error('Error updating tracking:', error.message || 'Unknown error');
     }
   };
 
@@ -221,6 +221,7 @@ export default function SideBar(props: { taskId: string; date: string}) {
 
   const increaseTaskValue = async () => {
     let adddedValue = 0;
+    taskTrackingDetails.value = Math.ceil(taskTrackingDetails.value);
     if (taskTrackingDetails.value >= 5000) {
       adddedValue = taskTrackingDetails.value + 500;
     } else if (taskTrackingDetails.value >= 1000) {
@@ -236,6 +237,7 @@ export default function SideBar(props: { taskId: string; date: string}) {
   };
   const decreaseTaskValue = async () => {    
     let removedValue = 0;
+    taskTrackingDetails.value = Math.floor(taskTrackingDetails.value);
     if (taskTrackingDetails.value >= 5000) {
       removedValue = taskTrackingDetails.value - 500;
     } else if (taskTrackingDetails.value >= 1000) {
@@ -310,28 +312,24 @@ export default function SideBar(props: { taskId: string; date: string}) {
           {currentTaskMeta.measurable && (
             <div className="flex mt-5 flex-col flex-1">
               <h3 className="text-md font-semibold">
-                {/* <em> */}
-                  <span>
-                    Goal:
-                  </span>
-                  <span className="ms-2">
-                    {taskTrackingDetails.task_details.value}
-                  </span>
-                  <span className="ms-2">
-                    {`${taskTrackingDetails.task_details.unit}`}
-                  </span>
-                {/* </em> */}
+                <span>
+                  Goal:
+                </span>
+                <span className="ms-2">
+                  {taskTrackingDetails.task_details.value}
+                </span>
+                <span className="ms-2">
+                  {`${taskTrackingDetails.task_details.unit}`}
+                </span>
               </h3>
               <h3 className="text-md font-semibold">
-                {/* <em> */}
-                  Acheived: 
-                  <span className="ms-2">
-                    {taskTrackingDetails.value}
-                  </span>
-                  <span className="ms-2">
-                    {`${taskTrackingDetails.task_details.unit}`}
-                  </span>
-                {/* </em> */}
+                Acheived: 
+                <span className="ms-2">
+                  {taskTrackingDetails.value}
+                </span>
+                <span className="ms-2">
+                  {`${taskTrackingDetails.task_details.unit}`}
+                </span>
               </h3>
               <div className="flex items-center mt-2 flex-1 justify-center">
                 {taskTrackingDetails.value !== 0 && 

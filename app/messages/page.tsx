@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 
 type Message = {
   id: number;
@@ -9,6 +9,8 @@ type Message = {
   timestamp: string;
   avatar: string;
 };
+
+const FRIENDS = ['John Doe', 'Sarah Smith', 'Emma Wilson'];
 
 export default function Messages() {
   const [messages] = useState<Message[]>([
@@ -33,7 +35,7 @@ export default function Messages() {
   const handleSendMessage = (e: React.FormEvent) => {
     e.preventDefault();
     if (newMessage.trim()) {
-      console.log('Sending message:', newMessage);
+
       setNewMessage('');
     }
   };
@@ -53,14 +55,14 @@ export default function Messages() {
               Invite Friend
             </button>
             <div className="space-y-2">
-              {['John Doe', 'Sarah Smith', 'Emma Wilson'].map((friend) => (
+              {FRIENDS.map((friend) => (
                 <div
                   key={friend}
                   className="flex items-center space-x-4 p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 cursor-pointer"
                 >
                   <div className="relative w-8 h-8">
                     <img
-                      src={`https://images.unsplash.com/photo-${Math.random()}?w=32&h=32&fit=crop&crop=face`}
+                      src={`https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=32&h=32&fit=crop&crop=face`}
                       alt={friend}
                       className="rounded-full w-full h-full object-cover"
                       onError={(e) => {

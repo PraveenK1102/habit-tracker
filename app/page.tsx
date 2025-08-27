@@ -18,7 +18,7 @@ export default function Home() {
   const taskMeta = useSelector((state: RootState) => state.tasks.taskmeta);
   const dispatch = useDispatch();
   const [loading, setLoading] = useState(false);
-  const [tasks, setTask] = useState<TaskData[]>([]);
+  const [tasks, setTasks] = useState<TaskData[]>([]);
   const [currentDate, setCurrentDate] = useState<string>(new Date().toISOString().split('T')[0]);
   const router = useRouter();
   console.log('Home component loaded');
@@ -27,11 +27,8 @@ export default function Home() {
   console.log('currentDate: ', currentDate);
   
   const loadDetails = React.useCallback(async (date) => {
-    // console.log('loading in loadDetails: ', loading);
+    if (!user) return;
     
-    // if (!loading) {
-    //   setLoading(true);
-    // }
     const { data: tasksData, error: tasksError } = await supabase
       .from('tasks')
       .select('*')
@@ -55,12 +52,12 @@ export default function Home() {
           ...taskObj
         }
       });
-      setTask(tasksDataWithMeta);
+      setTasks(tasksDataWithMeta);
     } else {
-      setTask([]);
+      setTasks([]);
     }
     // setLoading(false);
-  }, [])
+  }, [supabase, user, taskMeta])
 
   useEffect(() => {
     loadDetails(currentDate);
@@ -80,7 +77,6 @@ export default function Home() {
 
   const onDateSelect = React.useCallback((dateStr: string) => {
     setCurrentDate(dateStr);
-    loadDetails(dateStr);
   }, [])
   return (
     <div className="px-8 overflow-x-hidden">

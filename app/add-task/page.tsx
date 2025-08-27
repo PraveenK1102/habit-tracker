@@ -19,7 +19,7 @@ interface TaskMeta {
   icon: string;
 }
 
-export default function taskList() {
+export default function TaskList() {
   const router = useRouter();
   const supabase = useSupabaseClient();
   const [searchTask, setSearchTask] = useState('');
@@ -29,21 +29,24 @@ export default function taskList() {
 
   const updatedFilteredTasks = useMemo(() => {
     if (deferredSearchTask) {
-      const filteredTasks = tasksMeta.filter((task) => {
-      return task.task.toLowerCase().includes(deferredSearchTask.toLowerCase());
-    });
-      setFilteredTasks(filteredTasks);
+      return tasksMeta.filter((task) => {
+        return task.task.toLowerCase().includes(deferredSearchTask.toLowerCase());
+      });
     } else {
-      setFilteredTasks(tasksMeta);
+      return tasksMeta;
     }
   }, [deferredSearchTask, tasksMeta]);
+
+  useEffect(() => {
+    setFilteredTasks(updatedFilteredTasks);
+  }, [updatedFilteredTasks]);
 
 
   return (
     <div className="w-full mx-auto">
       <div className="p-6">
-        <div className="flex justify-between item-center z-10 py-4 sticky top-0 bg-white dark:bg-black">
-          <h1 className="text-2xl font-bold mb-6 sticky top-0 bg-white dark:bg-black">
+        <div className="flex justify-between item-center z-10 py-4 sticky top-0 bg-white dark:bg-black pr-4">
+          <h1 className="text-2xl font-bold mb-6 bg-white dark:bg-black">
             Task List
           </h1>
           <div className="flex">
@@ -52,8 +55,8 @@ export default function taskList() {
               id="value"
               value={searchTask}
               onChange={(e) => setSearchTask(e.target.value)}
-              placeholder="Value"
-              className="w-full input bg-inherit border border-t-0 border-l-0 border-r-0 rounded-none dark:border-gray-600 dark:text-white"
+              placeholder="Search task..."
+              className="w-full input bg-inherit border border-t-0 border-l-0 border-r-0 rounded-none dark:border-whilte dark:text-white"
             />
           </div>
         </div>

@@ -12,14 +12,18 @@ export default function SessionInitializer({ onReady }: { onReady: () => void })
 
   useEffect(() => {
     const fetchSession = async () => {
-      const { data } = await supabase.auth.getSession();
-      dispatch(setSession(data.session));
-      dispatch(setUser(data.session?.user));
-      if (!data.session?.user) {
-        router.push('/sign-in');
+      try {
+        const { data } = await supabase.auth.getSession();
+        dispatch(setSession(data.session));
+        dispatch(setUser(data.session?.user));
+        if (!data.session?.user) {
+          router.push('/sign-in');
+        }
+        await loadTaskMetaData();
+        onReady(); // Tell parent we're ready
+      } catch (error) {
+        console.error('Error fetching session:', error.message || 'Unknown error');
       }
-      await loadTaskMetaData();
-      onReady(); // Tell parent we're ready
     };
     const loadTaskMetaData = async () => {
       const { data: tasks, error } = await supabase.from('taskmeta').select('*');          
@@ -32,7 +36,7 @@ export default function SessionInitializer({ onReady }: { onReady: () => void })
       }
     };
     fetchSession();
-  }, [dispatch, supabase]);
+  }, [dispatch, supabase, router]);
 
   return null;
 }

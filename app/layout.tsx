@@ -20,9 +20,11 @@ function AppContent({ children }: { children: React.ReactNode }) {
   const hideNavbarRoutes = ['/sign-in', '/sign-up'];
   const shouldShowNavbar = !hideNavbarRoutes.includes(pathname);
 
-  const taskTrackingId = useSelector((state: RootState) => state.tasks.taskTrackingId);
-  const canShowSideBar = useSelector((state: RootState) => state.tasks.canShowSideBar);
-  const selectedDate = useSelector((state: RootState) => state.tasks.selectedDate);
+  const { taskTrackingId, canShowSideBar, selectedDate } = useSelector((state: RootState) => ({
+    taskTrackingId: state.tasks.taskTrackingId,
+    canShowSideBar: state.tasks.canShowSideBar,
+    selectedDate: state.tasks.selectedDate
+  }));
   
   return (
     <ThemeProvider
@@ -53,6 +55,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     <html lang="en" suppressHydrationWarning>
       <body className={inter.className}>
         <Provider store={store}>
+          <SessionInitializer onReady={() => setReady(true)} />
           {!ready ? (
             <div className="min-h-screen flex justify-center items-center text-lg">
               Loading...
@@ -60,7 +63,6 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           ) : (
             <AppContent>{children}</AppContent>
           )}
-          <SessionInitializer onReady={() => setReady(true)} />
         </Provider>
       </body>
     </html>

@@ -120,9 +120,9 @@ export default function Profile() {
   }, [profile.gender]);
 
   return (
-    <div className="flex flex-col w-full mx-auto">
+    <div className="flex w-full flex-col mx-auto">
       <div className="p-8">
-        <form onSubmit={handleSubmit} className="w-full mx-auto mb-6">
+        <form onSubmit={handleSubmit} className="w-1/2 mx-auto mb-6">
           <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-8">
             <h1 className="text-2xl font-bold mb-6 text-center dark:text-white">
               Profile Settings

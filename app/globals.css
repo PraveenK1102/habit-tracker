@@ -119,3 +119,32 @@ aside::-webkit-scrollbar {
     background-color: #000 !important;
 }
 
+/* Scrollbar styling for Webkit browsers */
+::-webkit-scrollbar {
+  width: 8px;              /* Fixed width */
+  height: 8px;             /* Fixed height for horizontal */
+  background-color: #f0f0f0; /* Track background */
+}
+
+::-webkit-scrollbar-track {
+  background-color: transparent; /* Track background */
+  border-radius: 8px;
+}
+
+::-webkit-scrollbar-thumb {
+  background-color: #ab0606;    /* Thumb color */
+  border-radius: 8px;
+  border: 2px solid #f0f0f0; /* Creates padding around thumb */
+  transition: background-color 0.3s ease;
+}
+
+/* Hover color change ONLY - no size change */
+::-webkit-scrollbar-thumb:hover {
+  background-color: #555;
+}
+
+/* Firefox scrollbar */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: transparent; /* thumb and track colors */
+}
