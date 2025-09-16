@@ -121,9 +121,9 @@ export default function Profile() {
 
   return (
     <div className="flex w-full flex-col mx-auto">
-      <div className="p-8">
-        <form onSubmit={handleSubmit} className="w-1/2 mx-auto mb-6">
-          <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-8">
+      <div className="lg:p-8">
+        <form onSubmit={handleSubmit} className="lg:w-1/2 mx-auto mb-6">
+          <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-8 h-full">
             <h1 className="text-2xl font-bold mb-6 text-center dark:text-white">
               Profile Settings
             </h1>

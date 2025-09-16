@@ -207,13 +207,13 @@ const TaskForm: React.FC<TaskFormProps> = ({ mode, taskId }) => {
   }
 
   return (
-    <form onSubmit={handleSubmit} className="w-full mx-auto p-6">
-      <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-8">
-        <h1 className="text-2xl font-bold mb-6 text-gray-900 dark:text-white mb-[40px]">
+    <form onSubmit={handleSubmit} className="w-full mx-auto lg:p-8 lg:w-1/2">
+      <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-8 h-full flex flex-col">
+        <h1 className="text-lg font-bold mb-6 text-gray-900 dark:text-white mb-[40px]">
           Task - {modelData.title}
         </h1>
 
-        <div className="flex flex-col gap-6">
+        <div className="flex flex-col gap-6 flex-1">
           {/* Task Frequency */}
           <div className="space-y-2">
             <label className="block text-sm font-medium text-gray-700 dark:text-gray-200">
@@ -387,7 +387,7 @@ const TaskForm: React.FC<TaskFormProps> = ({ mode, taskId }) => {
             </div>
           </div>
 
-          <div className="flex flex-row gap-4">
+          <div className="flex flex-row gap-4 mt-auto">
             <button
               type="submit"
               className="w-full py-2 px-4 bg-blue-500 text-white rounded-md hover:bg-blue-600 transition-colors"

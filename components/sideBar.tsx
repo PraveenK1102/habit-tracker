@@ -14,9 +14,7 @@ export default function SideBar(props: { taskId: string; date: string}) {
   const [taskTrackingDetails, setTaskTrackingDetails] = useState<TaskTrackingDetails>(taskTrackingDetailsDefaultValues);
   const [currentTaskMeta, setCurrentTaskMeta] = useState<TaskMetaProps>(taskMetaPropsDefaultValues);
   const tasks = useSelector((state: RootState) => state.tasks.taskmeta);
-  const canUpdateValue = useRef(true);
   let debounceTimeOut = useRef(null);
-  const canShowSideBar = useSelector((state: RootState) => state.tasks.canShowSideBar);
   const dispatch = useDispatch();
   const [isTaskCompleted, setIsTaskCompleted] = useState(false);
   const [loading, setLoading] = useState<boolean>(false);
@@ -123,11 +121,27 @@ export default function SideBar(props: { taskId: string; date: string}) {
   }
 
   const populateTaskTrackingDetails = (trackingDetails) => {
-    taskTrackingDetailsDefaultValues.task_details = trackingDetails.task_details;
-    setTaskTrackingDetails(taskTrackingDetailsDefaultValues);
+    const newTaskTrackingDetails = {
+      ...taskTrackingDetailsDefaultValues,
+      task_details: trackingDetails.task_details
+    };
+    setTaskTrackingDetails(newTaskTrackingDetails);
   };
 
   const testCreateTracking = async (value: number) => {
+    console.log('taskTrackingDetails:', taskTrackingDetails); // Debug log
+    console.log('taskTrackingDetails.task_details:', taskTrackingDetails.task_details); // Debug log
+    
+    // Safety check
+    if (!taskTrackingDetails.task_details || !taskTrackingDetails.task_details.unit) {
+      console.error('taskTrackingDetails.task_details or unit is undefined:', {
+        taskTrackingDetails,
+        task_details: taskTrackingDetails.task_details,
+        unit: taskTrackingDetails.task_details?.unit
+      });
+      return;
+    }
+    
     try {
       const response = await fetch('/api/tasks', {
         method: 'POST',
@@ -155,8 +169,21 @@ export default function SideBar(props: { taskId: string; date: string}) {
   };
 
   const testUpdateTracking = async (value: number) => {    
+    console.log('taskTrackingDetails:', taskTrackingDetails); // Debug log
+    console.log('taskTrackingDetails.task_details:', taskTrackingDetails.task_details); // Debug log  
+    
     if (!taskTrackingDetails.id) {
       console.error('No tracking ID available to update');
+      return;
+    }
+
+    // Safety check
+    if (!taskTrackingDetails.task_details || !taskTrackingDetails.task_details.unit) {
+      console.error('taskTrackingDetails.task_details or unit is undefined:', {
+        taskTrackingDetails,
+        task_details: taskTrackingDetails.task_details,
+        unit: taskTrackingDetails.task_details?.unit
+      });
       return;
     }
 
@@ -221,13 +248,13 @@ export default function SideBar(props: { taskId: string; date: string}) {
 
   const increaseTaskValue = async () => {
     let adddedValue = 0;
-    taskTrackingDetails.value = Math.ceil(taskTrackingDetails.value);
-    if (taskTrackingDetails.value >= 5000) {
-      adddedValue = taskTrackingDetails.value + 500;
-    } else if (taskTrackingDetails.value >= 1000) {
-      adddedValue = taskTrackingDetails.value + 200;
+    const currentValue = Math.ceil(taskTrackingDetails.value);
+    if (currentValue >= 5000) {
+      adddedValue = currentValue + 500;
+    } else if (currentValue >= 1000) {
+      adddedValue = currentValue + 200;
     } else {
-      adddedValue =  taskTrackingDetails.value + (Math.floor(taskTrackingDetails.value / 100) + 1);
+      adddedValue = currentValue + (Math.floor(currentValue / 100) + 1);
     }
     setTaskTrackingDetails((prev) => ({
       ...prev,
@@ -237,13 +264,13 @@ export default function SideBar(props: { taskId: string; date: string}) {
   };
   const decreaseTaskValue = async () => {    
     let removedValue = 0;
-    taskTrackingDetails.value = Math.floor(taskTrackingDetails.value);
-    if (taskTrackingDetails.value >= 5000) {
-      removedValue = taskTrackingDetails.value - 500;
-    } else if (taskTrackingDetails.value >= 1000) {
-      removedValue = taskTrackingDetails.value - 200;
+    const currentValue = Math.floor(taskTrackingDetails.value);
+    if (currentValue >= 5000) {
+      removedValue = currentValue - 500;
+    } else if (currentValue >= 1000) {
+      removedValue = currentValue - 200;
     } else {
-      removedValue =  taskTrackingDetails.value - (Math.floor(taskTrackingDetails.value / 100) + 1);
+      removedValue = currentValue - (Math.floor(currentValue / 100) + 1);
     }
     setTaskTrackingDetails((prev) => ({
       ...prev,
@@ -259,13 +286,13 @@ export default function SideBar(props: { taskId: string; date: string}) {
     setCurrentTaskMeta(taskMetaPropsDefaultValues);
   }
   return (
-    <aside className="w-80 overflow-y-auto bg-gray-100 dark:bg-gray-900 border-l border-gray-200 dark:border-gray-700 p-4 flex">
+    <aside className="w-full md:w-80 overflow-hidden md:overflow-y-auto bg-gray-100 dark:bg-gray-900 border-t md:border-l md:border-t-0 border-gray-200 dark:border-gray-700 p-4 fixed md:relative bottom-0 left-0 right-0 md:bottom-auto md:left-auto md:right-auto h-1/2 md:h-auto rounded-t-lg md:rounded-none flex flex-col md:flex glass-container">
       {loading ? (
         <div className="flex justify-center items-center text-sm w-full">
           Fetching Details...
         </div>
         ) :
-        <div className="p-4 flex flex-col flex-1">
+        <div className="p-4 flex flex-col flex-1 overflow-hidden md:overflow-visible">
           <div className="flex" style={{alignSelf: 'end'}}>
             <button 
               className="text-gray-300 hover:text-gray-100 transition-colors" 
@@ -274,9 +301,9 @@ export default function SideBar(props: { taskId: string; date: string}) {
                 x
             </button>
           </div>
-          <h2 className="text-lg font-semibold">Task - {currentTaskMeta.task}</h2>
-          <div className="mt-2">
-            <small>
+          <h2 className="text-base font-semibold md:text-lg truncate md:truncate-none">Task - {currentTaskMeta.task}</h2>
+          <div className="mt-1 md:mt-2">
+            <small className="text-xs md:text-sm">
               <span className="text-bold">
                 Started At:
               </span>
@@ -285,8 +312,8 @@ export default function SideBar(props: { taskId: string; date: string}) {
               </span>
             </small>
             {taskTrackingDetails.date_fromatted && 
-              <div>
-                <small>
+              <div className="mt-1 md:mt-1">
+                <small className="text-xs md:text-sm">
                     <span className="text-bold">
                       Task Date:
                     </span>
@@ -297,8 +324,8 @@ export default function SideBar(props: { taskId: string; date: string}) {
               </div>
             }
             {taskTrackingDetails.updated_time && 
-              <div>
-                <small>
+              <div className="mt-1 md:mt-1">
+                <small className="text-xs md:text-sm">
                     <span className="text-bold">
                       Last Updated:
                     </span>
@@ -310,8 +337,8 @@ export default function SideBar(props: { taskId: string; date: string}) {
             }
           </div>
           {currentTaskMeta.measurable && (
-            <div className="flex mt-5 flex-col flex-1">
-              <h3 className="text-md font-semibold">
+            <div className="flex mt-3 md:mt-5 flex-col flex-1 min-h-0">
+              <h3 className="text-sm font-semibold md:text-md">
                 <span>
                   Goal:
                 </span>
@@ -322,7 +349,7 @@ export default function SideBar(props: { taskId: string; date: string}) {
                   {`${taskTrackingDetails.task_details.unit}`}
                 </span>
               </h3>
-              <h3 className="text-md font-semibold">
+              <h3 className="text-sm font-semibold md:text-md">
                 Acheived: 
                 <span className="ms-2">
                   {taskTrackingDetails.value}
@@ -331,7 +358,7 @@ export default function SideBar(props: { taskId: string; date: string}) {
                   {`${taskTrackingDetails.task_details.unit}`}
                 </span>
               </h3>
-              <div className="flex items-center mt-2 flex-1 justify-center">
+              <div className="flex items-center mt-3 md:mt-2 flex-1 justify-center">
                 {taskTrackingDetails.value !== 0 && 
                   <button
                     onClick={decreaseTaskValue}

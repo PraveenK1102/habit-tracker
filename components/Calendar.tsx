@@ -127,10 +127,10 @@ export default React.memo(function HorizontalWeekCalendar(
 
   return (
     <div className="w-full">
-      <div className="mb-3">
+      <div className="mb-2 lg:mb-3">
         <a
           href="#"
-          className="mt-4 text-sm text-blue-500 hover:text-blue-700 py-4"
+          className="text-xs lg:text-sm text-blue-500 hover:text-blue-700 py-2 lg:py-4 touch-manipulation"
           onClick={navigateToCurrentDate}
           >
           Now At - {selectedDate.toDateString()}
@@ -139,7 +139,8 @@ export default React.memo(function HorizontalWeekCalendar(
       <div
         ref={scrollRef}
         onScroll={handleScroll}
-        className="flex overflow-x-scroll space-x-2 border rounded bg-white dark:bg-black py-4 text-xs"
+        className="flex overflow-x-auto space-x-1 lg:space-x-2 border rounded bg-white dark:bg-black py-2 lg:py-4 text-xs scrollbar-thin scrollbar-thumb-gray-300 dark:scrollbar-thumb-gray-600"
+        style={{ scrollbarWidth: 'thin' }}
       >
         {weeks.map(({ date = new Date(), date_formatted = '', isNextMonthStarted = false }, index) => {
           let selectedDateTemp = date?.toDateString() === selectedDate?.toDateString();
@@ -147,20 +148,23 @@ export default React.memo(function HorizontalWeekCalendar(
             <React.Fragment key={index}>
               {isNextMonthStarted && (
                 <div
-                  className="w-34 min-w-[8rem] flex justify-center items-center border rounded py-2 cursor-pointer 
-                  select-none transition-all bg-gray-100 dark:bg-gray-800 sticky left-0 font-bold"
+                  className="w-20 lg:w-34 min-w-[5rem] lg:min-w-[8rem] flex justify-center items-center border rounded py-2 cursor-pointer 
+                  select-none transition-all bg-gray-100 dark:bg-gray-800 sticky left-0 font-bold text-xs lg:text-sm touch-manipulation"
                 >
-                  {date.toDateString().split(' ')[1]} {date.getFullYear()}
+                  <span className="text-center">
+                    {date.toDateString().split(' ')[1]} {date.getFullYear()}
+                  </span>
                 </div>
               )}
               <div
                 ref={selectedDateTemp ? selectedDateRef : null}
                 onClick={() => handleDateClick(date, date_formatted)}
-                className={`w-24 min-w-[6rem] text-center border rounded py-2 cursor-pointer select-none transition-all
+                className={`w-16 lg:w-24 min-w-[3.5rem] lg:min-w-[6rem] text-center border rounded py-2 cursor-pointer select-none transition-all touch-manipulation
                   ${currentDate === date_formatted ? 'bg-blue-500 text-white' : 'hover:bg-gray-200 dark:hover:bg-gray-700'}`}
               >
-                <div className="font-semibold">{date?.getDate()}</div>
-                <div className="text-xs">{WEEKDAYS[date?.getDay()]}</div>
+                <div className="font-semibold text-sm lg:text-base">{date?.getDate()}</div>
+                <div className="text-xs hidden sm:block">{WEEKDAYS[date?.getDay()]}</div>
+                <div className="text-xs sm:hidden">{WEEKDAYS[date?.getDay()].slice(0, 3)}</div>
               </div>
             </React.Fragment>
           );

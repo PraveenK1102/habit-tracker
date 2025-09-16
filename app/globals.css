@@ -81,6 +81,21 @@
   }
 }
 
+.search-input {
+  border: none;
+  border-bottom: 1px solid #ccc;
+  outline: none;
+  padding: 8px;
+  width: 100%;
+  transition: border-color 0.3s;
+  @media screen and (max-width: 768px) {
+    width: 120px;
+  }
+  @media screen and (min-width: 768px) {
+    width: 200px
+  }
+}
+
 .input {
   border: none;
   border-bottom: 1px solid #ccc;
@@ -90,6 +105,15 @@
   transition: border-color 0.3s;
 }
 
+
+.glass-container {
+  background: rgba(255, 255, 255, 0) !important;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  border-radius: 2rem;
+  box-shadow: 0 4px 30px rgba(10, 0, 0, 0.8);
+  backdrop-filter: blur(30px);
+  -webkit-backdrop-filter: blur(30px);
+}
 .input:focus {
   border-bottom: 1.5px solid #3b82f6;
 }

@@ -43,20 +43,20 @@ export default function TaskList() {
 
 
   return (
-    <div className="w-full mx-auto">
-      <div className="p-6">
-        <div className="flex justify-between item-center z-10 py-4 sticky top-0 bg-white dark:bg-black pr-4">
-          <h1 className="text-2xl font-bold mb-6 bg-white dark:bg-black">
+    <div className="flex flex-col space-y-5 flex-1 h-full">
+      <div className="flex-1 overflow-y-auto pb-4">
+        <div className="flex justify-between item-center z-10 py-4 sticky top-0 bg-white dark:bg-black px-5">
+          <h1 className="text-lg lg:text-xl font-bold mb-6 bg-white dark:bg-black align-self-center self-center">
             Task List
           </h1>
-          <div className="flex">
+          <div>
             <input
               type="text"
               id="value"
               value={searchTask}
               onChange={(e) => setSearchTask(e.target.value)}
               placeholder="Search task..."
-              className="w-full input bg-inherit border border-t-0 border-l-0 border-r-0 rounded-none dark:border-whilte dark:text-white"
+              className="search-input bg-inherit border border-t-0 border-l-0 border-r-0 rounded-none dark:border-whilte dark:text-white text-sm"
             />
           </div>
         </div>

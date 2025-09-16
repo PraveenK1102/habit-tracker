@@ -35,8 +35,8 @@ function AppContent({ children }: { children: React.ReactNode }) {
     >
       <div className="flex flex-col h-screen">
         {shouldShowNavbar && <NavigationBar />}
-        <div className="flex flex-row flex-1 h-[calc(100vh-60px)]">
-          <main className="flex pb-8 flex-1 overflow-y-auto bg-white dark:bg-black">
+        <div className="flex flex-row h-[calc(100vh-55px)]">
+          <main className="flex flex-1 overflow-y-auto bg-white dark:bg-black">
             {children}
           </main>
           {canShowSideBar && 

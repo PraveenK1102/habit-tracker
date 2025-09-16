@@ -79,49 +79,55 @@ export default function Home() {
     setCurrentDate(dateStr);
   }, [])
   return (
-    <div className="px-8 overflow-x-hidden">
-      <div className="flex flex-col space-y-4 flex-1">
-        <div className="w-full py-4 sticky top-0 bg-white dark:bg-black z-10">
+    <div className="px-4 lg:px-8 overflow-x-hidden h-full">
+      <div className="mt-5 mb-3">
+        <p>Hello User</p>
+      </div>
+      <div className="flex flex-col space-y-5 flex-1 h-full">
+        <div className="w-full py-2 lg:py-4 sticky top-160 bg-white dark:bg-black z-10">
             <Calendar 
               onDateSelect={onDateSelect}
               currentDate={currentDate}
               setCurrentDate={setCurrentDate}
               />
-            <div className="flex items-center justify-between py-4">
-              <h1 className="text-lg font-bold">Your Health Tasks</h1>
+            <div className="flex items-center justify-between pt-5 lg:py-4">
+              <h1 className="text-base lg:text-lg font-bold">Your Tasks</h1>
               <Link 
                 href="/add-task"
-                className="px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600 transition-colors text-xs"
+                className="px-3 lg:px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600 transition-colors text-xs lg:text-sm touch-manipulation"
                 >
                 Add New Task
               </Link>
             </div>
           </div>
 
-        <div className="flex flex-1 flex-wrap items-center">
+        <div className="flex-1 overflow-y-auto pb-4">
           {tasks.length === 0 && !loading ? (
-            <div className="flex justify-center items-center text-lg w-full">
+            <div className="flex justify-center items-center text-sm lg:text-lg w-full h-32 lg:h-48 text-center px-4">
               You have no tasks. Click the button above to add a new task.
             </div>
           ) : null}
           {loading ? (
-            <div className="flex justify-center items-center text-lg w-full">
+            <div className="flex justify-center items-center text-sm lg:text-lg w-full h-32 lg:h-48">
               Loading...
             </div>
           ) : (
-            <>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 lg:gap-6">
               {tasks.map((task) => (
-                <div className="mx-4 w-64 my-4" key={task.id}>
-                  <div onClick={handleTaskDetails(task.id)} className="block">
-                    <div className="flex flex-col bg-white dark:bg-gray-800 rounded-lg shadow-lg hover:shadow-lg transition-shadow p-4 min-h-[250px]">
-                      <div className="flex justify-between pb-2">
+                <div key={task.id} className="w-full">
+                  <div onClick={handleTaskDetails(task.id)} className="block h-full">
+                    <div className="flex flex-col bg-white dark:bg-gray-800 rounded-lg shadow-lg hover:shadow-xl transition-all p-4 h-full min-h-[200px] lg:min-h-[250px] cursor-pointer touch-manipulation">
+                      <div className="flex justify-between pb-2 mb-2">
                         <h2 
-                          className="text-lg font-medium cursor-pointer text-blue-500 hover:underline"
-                          onClick={() => router.push(`/add-task/edit/${task.id}`)}
+                          className="text-sm lg:text-lg font-medium cursor-pointer text-blue-500 hover:underline line-clamp-2 flex-1 mr-2"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            router.push(`/add-task/edit/${task.id}`);
+                          }}
                         >
                           {task.task}
                         </h2>
-                        <div className="flex gap-2">
+                        <div className="flex gap-1 lg:gap-2 flex-shrink-0">
                           <span 
                             className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-gray-100 dark:bg-gray-700"
                             >
@@ -134,24 +140,24 @@ export default function Home() {
                             </span>
                         </div>
                       </div>
-                      <div className="flex text-sm justify-between text-gray-500 dark:text-gray-400">
+                      <div className="flex text-xs lg:text-sm justify-between text-gray-500 dark:text-gray-400 mb-3">
                         <div className="flex">
                           {/* <Clock className="h-4 w-4 mr-1" />
                           {task.reminder_time.join(', ')} */}
                         </div>
-                        <div className="flex">
-                          <Users className="h-4 w-4 mr-1" />
-                          {task.friends.length} friends
+                        <div className="flex items-center">
+                          <Users className="h-3 lg:h-4 w-3 lg:w-4 mr-1" />
+                          <span className="truncate">{task.friends.length} friends</span>
                         </div>
                       </div>
-                      <p className="mt-4 text-sm text-gray-600 dark:text-gray-300 line-clamp-2">
+                      <p className="mt-auto text-xs lg:text-sm text-gray-600 dark:text-gray-300 line-clamp-3 lg:line-clamp-2">
                         {task.description}
                       </p>
                     </div>
                   </div>
                 </div>
               ))}
-            </>
+            </div>
           )}
         </div>
       </div>
