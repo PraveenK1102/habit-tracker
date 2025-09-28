@@ -63,7 +63,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <Provider store={store}>
           <SessionInitializer onReady={() => setReady(true)} />
           {!ready ? (
-            <div className="h-100vh flex justify-center items-center">
+            <div className="h-screen flex justify-center items-center">
               Loading...
             </div>
           ) : (
