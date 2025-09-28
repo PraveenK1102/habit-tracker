@@ -12,25 +12,30 @@ export function convertUnit(
   // Volume conversions
   const volumeConversions: Record<VolumeUnit, Record<VolumeUnit, number>> = {
     ml: {
+      ml: 1,
       l: 1 / 1000,
       gallon: 1 / 3785.41,
     },
     l: {
       ml: 1000,
+      l: 1,
       gallon: 1 / 3.78541,
     },
     gallon: {
       ml: 3785.41,
       l: 3.78541,
+      gallon: 1,
     },
   };
 
   // Time conversions
   const timeConversions: Record<TimeUnit, Record<TimeUnit, number>> = {
     hours: {
+      hours: 1,
       minutes: 60,
     },
     minutes: {
+      minutes: 1,
       hours: 1 / 60,
     },
   };

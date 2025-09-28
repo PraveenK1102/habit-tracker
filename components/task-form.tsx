@@ -275,7 +275,7 @@ const TaskForm: React.FC<TaskFormProps> = ({ mode, taskId }) => {
                     type="number"
                     id="value"
                     value={task.value}
-                    onChange={e => setTask(prev => ({ ...prev, value: e.target.value }))}
+                    onChange={e => setTask(prev => ({ ...prev, value: parseFloat(e.target.value) || 0 }))}
                     placeholder="Value"
                     min={0}
                     className="w-full input p-2 bg-inherit border border-t-0 border-l-0 border-r-0 rounded-none dark:border-gray-600 dark:text-white basis-1/4"
@@ -349,7 +349,7 @@ const TaskForm: React.FC<TaskFormProps> = ({ mode, taskId }) => {
                   <select
                   id="reminder_day"
                   className="w-full input p-2 bg-inherit border border-t-0 border-l-0 border-r-0 rounded-none dark:border-gray-600 dark:text-white"                value={task.reminder_day || ''}
-                  onChange={e => setTask(prev => ({ ...prev, reminder_day: e.target.value }))}>
+                  onChange={e => setTask(prev => ({ ...prev, reminder_day: e.target.value as TaskData['reminder_day'] }))}>
                     <option value="MONDAY">Monday</option>
                     <option value="TUESDAY">Tuesday</option>
                     <option value="WEDNESDAY">Wednesday</option>
