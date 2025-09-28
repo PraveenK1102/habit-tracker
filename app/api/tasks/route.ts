@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { getTaskTrackingDetails, createTaskTracking, updateTaskTracking } from '../tasks';
+import { getTaskTrackingDetails } from '../tasks';
 import { createSupabaseServerClient } from '@/lib/supabaseServer';
 
 export async function GET(request: Request) {
