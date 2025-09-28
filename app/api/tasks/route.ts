@@ -2,6 +2,9 @@ import { NextResponse } from 'next/server';
 import { getTaskTrackingDetails } from '../tasks';
 import { createSupabaseServerClient } from '@/lib/supabaseServer';
 
+// Force dynamic rendering
+export const dynamic = 'force-dynamic';
+
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url)
   const taskId = searchParams.get('taskId')

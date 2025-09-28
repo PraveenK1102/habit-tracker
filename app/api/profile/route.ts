@@ -1,6 +1,9 @@
 import { NextResponse } from 'next/server';
 import { createSupabaseServerClient } from '@/lib/supabaseServer';
 
+// Force dynamic rendering
+export const dynamic = 'force-dynamic';
+
 export async function GET(request: Request) {
   const supabase = createSupabaseServerClient();
   const { data: userData, error: userError } = await supabase.auth.getUser();
