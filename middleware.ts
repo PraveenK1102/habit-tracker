@@ -3,23 +3,29 @@ import { NextResponse } from 'next/server'
 import type { NextRequest } from 'next/server'
 
 export async function middleware(req: NextRequest) {
-  const res = NextResponse.next()
+  // Allow API routes to pass through without redirects
+  if (req.nextUrl.pathname.startsWith('/api')) {
+    return NextResponse.next();
+  }
 
-  const supabase = createMiddlewareClient({ req, res })
+  const res = NextResponse.next();
+
+  const supabase = createMiddlewareClient({ req, res });
   const {
     data: { session },
-  } = await supabase.auth.getSession()
+  } = await supabase.auth.getSession();
 
   const authPath = ['/sign-in', '/sign-up'];
   if (session && authPath.includes(req.nextUrl.pathname)) {
-    return NextResponse.redirect(new URL('/', req.url))
+    return NextResponse.redirect(new URL('/', req.url));
   }
   if (!session && !authPath.includes(req.nextUrl.pathname)) {
-    return NextResponse.redirect(new URL('/sign-up', req.url))
-  } 
+    return NextResponse.redirect(new URL('/sign-up', req.url));
+  }
   return res;
 }
 
 export const config = {
-  matcher: '/((?!_next/static|_next/image|favicon.ico).*)',
+  // Exclude API and static assets from middleware
+  matcher: ['/((?!api|_next/static|_next/image|favicon.ico).*)'],
 }

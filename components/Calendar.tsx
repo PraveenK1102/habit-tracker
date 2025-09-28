@@ -1,5 +1,4 @@
 import React, { useRef, useState, useEffect } from 'react';
-import { useTheme } from "next-themes";
 
 const WEEKDAYS = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
 
@@ -70,6 +69,15 @@ function generateWeeks(
   return weeks;
 }
 
+function formatYMD(date: Date): string {
+  const year = date.getFullYear();
+  const month = date.getMonth() + 1;
+  const day = date.getDate();
+  const mm = month < 10 ? `0${month}` : `${month}`;
+  const dd = day < 10 ? `0${day}` : `${day}`;
+  return `${year}-${mm}-${dd}`;
+}
+
 export default React.memo(function HorizontalWeekCalendar(
   { 
     onDateSelect,
@@ -80,10 +88,10 @@ export default React.memo(function HorizontalWeekCalendar(
     currentDate: string;
     setCurrentDate: (date: string) => void
   }) {
-  // const { resolvedTheme } = useTheme();
   const scrollRef = useRef<HTMLDivElement>(null);
   const [selectedDate, setSelectedDate] = useState<Date>(new Date());
   const selectedDateRef = useRef<HTMLDivElement>(null);
+  const todayDateRef = useRef<HTMLDivElement>(null);
   const [weeks, setWeeks] = useState<CalendarDate[]>(() => generateWeeks(selectedDate, 4, 4));
 
   const handleScroll = () => {
@@ -115,56 +123,79 @@ export default React.memo(function HorizontalWeekCalendar(
     onDateSelect(date_formatted);
   };
 
+  const navigateToToday = (e) => {
+    e?.preventDefault();
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    const formatted = formatYMD(today);
+    setSelectedDate(today);
+    setCurrentDate(formatted);
+    onDateSelect(formatted);
+    if (todayDateRef.current) {
+      todayDateRef.current.scrollIntoView({ behavior: 'auto', inline: 'center', block: 'nearest' });
+    }
+  }
   const navigateToCurrentDate = (e) => {
     e?.preventDefault();
-    if (selectedDateRef.current) {
-      selectedDateRef.current.scrollIntoView({ behavior: 'auto', inline: 'center', block: 'nearest' });
-    }
+    requestAnimationFrame(() => {
+      if (selectedDateRef.current) {
+        selectedDateRef.current.scrollIntoView({ behavior: 'auto', inline: 'center', block: 'nearest' });
+      }
+    });
+  }
+  const isSelectedDateToday = () => {
+    const today = new Date();
+    return selectedDate.toDateString() === today.toDateString();
   }
   useEffect(() => {
     navigateToCurrentDate(null);
   }, []);
 
+  
   return (
     <div className="w-full">
-      <div className="mb-2 lg:mb-3">
-        <a
-          href="#"
-          className="text-xs lg:text-sm text-blue-500 hover:text-blue-700 py-2 lg:py-4 touch-manipulation"
-          onClick={navigateToCurrentDate}
-          >
-          Now At - {selectedDate.toDateString()}
-        </a>
+      <div className="my-3 lg:mb-3 flex justify-between">
+        <button className="text-sm text-blue-400" onClick={navigateToCurrentDate}>{selectedDate.toDateString()}</button>
+        {!isSelectedDateToday() && (
+          <button className="text-sm text-blue-400" onClick={navigateToToday}>Go to current date</button>
+          )}
       </div>
       <div
         ref={scrollRef}
         onScroll={handleScroll}
-        className="flex overflow-x-auto space-x-1 lg:space-x-2 border rounded bg-white dark:bg-black py-2 lg:py-4 text-xs scrollbar-thin scrollbar-thumb-gray-300 dark:scrollbar-thumb-gray-600"
+        className="flex overflow-x-auto lg:space-x-2 border rounded bg-white dark:bg-black dark:bg-opacity-[0.7] py-2 lg:py-4 scrollbar-thin scrollbar-thumb-gray-300 dark:scrollbar-thumb-gray-600"
         style={{ scrollbarWidth: 'thin' }}
       >
         {weeks.map(({ date = new Date(), date_formatted = '', isNextMonthStarted = false }, index) => {
           let selectedDateTemp = date?.toDateString() === selectedDate?.toDateString();
+          let todayDateTemp = date?.toDateString() === new Date().toDateString();
           return (
             <React.Fragment key={index}>
               {isNextMonthStarted && (
                 <div
-                  className="w-20 lg:w-34 min-w-[5rem] lg:min-w-[8rem] flex justify-center items-center border rounded py-2 cursor-pointer 
-                  select-none transition-all bg-gray-100 dark:bg-gray-800 sticky left-0 font-bold text-xs lg:text-sm touch-manipulation"
+                  className="w-16 lg:w-34 min-w-[50px] lg:min-w-[8rem] flex justify-center items-center border rounded py-2 cursor-pointer 
+                  select-none transition-all bg-gray-100 dark:bg-gray-800 sticky left-0 font-bold text-xs touch-manipulation"
                 >
-                  <span className="text-center">
-                    {date.toDateString().split(' ')[1]} {date.getFullYear()}
+                  <div className="flex flex-col md:flex-row items-center">
+                    <span className="text-center">
+                      {date.toDateString().split(' ')[1]}
+                    </span>
+                    <span className="text-center md:pt-0 md:pl-1 pt-2">
+                      {date.getFullYear()}
                   </span>
+                  </div>
+                 
                 </div>
               )}
               <div
-                ref={selectedDateTemp ? selectedDateRef : null}
+                ref={selectedDateTemp ? selectedDateRef : todayDateTemp ? todayDateRef : null}
                 onClick={() => handleDateClick(date, date_formatted)}
-                className={`w-16 lg:w-24 min-w-[3.5rem] lg:min-w-[6rem] text-center border rounded py-2 cursor-pointer select-none transition-all touch-manipulation
+                className={`w-16 lg:w-24 min-w-[3.5rem] lg:min-w-[6rem] text-center border rounded py-2 cursor-pointer select-none transition-all touch-manipulation text-xs
                   ${currentDate === date_formatted ? 'bg-blue-500 text-white' : 'hover:bg-gray-200 dark:hover:bg-gray-700'}`}
               >
-                <div className="font-semibold text-sm lg:text-base">{date?.getDate()}</div>
-                <div className="text-xs hidden sm:block">{WEEKDAYS[date?.getDay()]}</div>
-                <div className="text-xs sm:hidden">{WEEKDAYS[date?.getDay()].slice(0, 3)}</div>
+                <div className="font-semibold">{date?.getDate()}</div>
+                <div className="hidden lg:block">{WEEKDAYS[date?.getDay()]}</div>
+                <div className="lg:hidden">{WEEKDAYS[date?.getDay()].slice(0, 3)}</div>
               </div>
             </React.Fragment>
           );

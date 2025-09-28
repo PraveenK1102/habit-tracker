@@ -45,7 +45,7 @@ export default function Messages() {
       {/* Friends Section */}
       <section className="bg-white dark:bg-gray-800 rounded-lg shadow-lg lg:col-span-1 order-2 lg:order-1">
         <div className="p-4 lg:p-6 border-b border-gray-200 dark:border-gray-700">
-          <h2 className="text-lg lg:text-xl font-semibold">Friends</h2>
+          <h2 className="font-semibold">Friends</h2>
         </div>
         <div className="p-4 lg:p-6 max-h-64 lg:max-h-none overflow-y-auto">
           <div className="space-y-4">
@@ -84,7 +84,7 @@ export default function Messages() {
       {/* Messages Section */}
       <section className="bg-white dark:bg-gray-800 rounded-lg shadow-lg lg:col-span-2 order-1 lg:order-2 flex flex-col h-[70vh] lg:h-auto">
         <div className="p-4 lg:p-6 border-b border-gray-200 dark:border-gray-700 flex-shrink-0">
-          <h2 className="text-lg lg:text-xl font-semibold">Messages</h2>
+          <h2 className="font-semibold">Messages</h2>
         </div>
         <div className="p-4 lg:p-6 flex flex-col flex-1 min-h-0">
           <div className="flex-1 overflow-y-auto pr-2 lg:pr-4 space-y-4 mb-4 scrollbar-thin scrollbar-thumb-gray-300 dark:scrollbar-thumb-gray-600">
@@ -104,7 +104,7 @@ export default function Messages() {
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center justify-between mb-1">
                     <h4 className="text-sm font-semibold truncate">{message.sender}</h4>
-                    <span className="text-xs text-gray-500 dark:text-gray-400 flex-shrink-0 ml-2">{message.timestamp}</span>
+                    <span className="text-gray-500 dark:text-gray-400 flex-shrink-0 ml-2">{message.timestamp}</span>
                   </div>
                   <p className="text-sm text-gray-600 dark:text-gray-300 break-words">{message.content}</p>
                 </div>

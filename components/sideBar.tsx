@@ -128,10 +128,7 @@ export default function SideBar(props: { taskId: string; date: string}) {
     setTaskTrackingDetails(newTaskTrackingDetails);
   };
 
-  const testCreateTracking = async (value: number) => {
-    console.log('taskTrackingDetails:', taskTrackingDetails); // Debug log
-    console.log('taskTrackingDetails.task_details:', taskTrackingDetails.task_details); // Debug log
-    
+  const testCreateTracking = async (value: number) => {    
     // Safety check
     if (!taskTrackingDetails.task_details || !taskTrackingDetails.task_details.unit) {
       console.error('taskTrackingDetails.task_details or unit is undefined:', {
@@ -168,10 +165,7 @@ export default function SideBar(props: { taskId: string; date: string}) {
     }
   };
 
-  const testUpdateTracking = async (value: number) => {    
-    console.log('taskTrackingDetails:', taskTrackingDetails); // Debug log
-    console.log('taskTrackingDetails.task_details:', taskTrackingDetails.task_details); // Debug log  
-    
+  const testUpdateTracking = async (value: number) => {        
     if (!taskTrackingDetails.id) {
       console.error('No tracking ID available to update');
       return;
@@ -286,13 +280,13 @@ export default function SideBar(props: { taskId: string; date: string}) {
     setCurrentTaskMeta(taskMetaPropsDefaultValues);
   }
   return (
-    <aside className="w-full md:w-80 overflow-hidden md:overflow-y-auto bg-gray-100 dark:bg-gray-900 border-t md:border-l md:border-t-0 border-gray-200 dark:border-gray-700 p-4 fixed md:relative bottom-0 left-0 right-0 md:bottom-auto md:left-auto md:right-auto h-1/2 md:h-auto rounded-t-lg md:rounded-none flex flex-col md:flex glass-container">
+    <aside className="lg:w-80 overflow-hidden md:overflow-y-auto bg-white dark:bg-black md:border-l border-t px-5 pt-2 pb-5 md:fixed md:relative bottom-[64px] lg:bottom-0 left-0 right-0 md:bottom-auto md:left-auto md:right-auto md:h-auto rounded-t-lg md:rounded-none flex flex-col md:flex w-full">
       {loading ? (
         <div className="flex justify-center items-center text-sm w-full">
           Fetching Details...
         </div>
         ) :
-        <div className="p-4 flex flex-col flex-1 overflow-hidden md:overflow-visible">
+        <div className="flex flex-col flex-1 overflow-hidden md:overflow-visible space-y-4">
           <div className="flex" style={{alignSelf: 'end'}}>
             <button 
               className="text-gray-300 hover:text-gray-100 transition-colors" 
@@ -301,84 +295,90 @@ export default function SideBar(props: { taskId: string; date: string}) {
                 x
             </button>
           </div>
-          <h2 className="text-base font-semibold md:text-lg truncate md:truncate-none">Task - {currentTaskMeta.task}</h2>
-          <div className="mt-1 md:mt-2">
-            <small className="text-xs md:text-sm">
-              <span className="text-bold">
-                Started At:
-              </span>
-              <span className="ms-2">
-                {taskTrackingDetails.task_details?.created_at_formatted}
-              </span>
-            </small>
-            {taskTrackingDetails.date_fromatted && 
-              <div className="mt-1 md:mt-1">
-                <small className="text-xs md:text-sm">
-                    <span className="text-bold">
-                      Task Date:
-                    </span>
-                    <span className="ms-2">
-                      {taskTrackingDetails.date_fromatted}
-                    </span>
-                  </small>
-              </div>
-            }
-            {taskTrackingDetails.updated_time && 
-              <div className="mt-1 md:mt-1">
-                <small className="text-xs md:text-sm">
-                    <span className="text-bold">
-                      Last Updated:
-                    </span>
-                    <span className="ms-2">
-                      {taskTrackingDetails.updated_time}
-                      </span>
-                  </small>
-              </div>
-            }
-          </div>
-          {currentTaskMeta.measurable && (
-            <div className="flex mt-3 md:mt-5 flex-col flex-1 min-h-0">
-              <h3 className="text-sm font-semibold md:text-md">
-                <span>
-                  Goal:
-                </span>
-                <span className="ms-2">
-                  {taskTrackingDetails.task_details.value}
-                </span>
-                <span className="ms-2">
-                  {`${taskTrackingDetails.task_details.unit}`}
-                </span>
-              </h3>
-              <h3 className="text-sm font-semibold md:text-md">
-                Acheived: 
-                <span className="ms-2">
-                  {taskTrackingDetails.value}
-                </span>
-                <span className="ms-2">
-                  {`${taskTrackingDetails.task_details.unit}`}
-                </span>
-              </h3>
-              <div className="flex items-center mt-3 md:mt-2 flex-1 justify-center">
-                {taskTrackingDetails.value !== 0 && 
-                  <button
-                    onClick={decreaseTaskValue}
-                    className={`px-3 py-1 text-sm bg-red-500 text-white rounded-l-md hover:bg-red-600 transition-colors h-10`}
-                  >
-                    -
-                  </button>
+          <div className="flex flex:row md:flex-col flex-1 justify-between">
+            <div>
+              <h2 className="text-sm font-semibold truncate md:truncate-none">Task - {currentTaskMeta.task}</h2>
+              <div className="mt-1 md:mt-2">
+                <small className="md:text-sm">
+                  <span className="text-bold">
+                    Started At:
+                  </span>
+                  <span className="ms-2">
+                    {taskTrackingDetails.task_details?.created_at_formatted}
+                  </span>
+                </small>
+                {taskTrackingDetails.date_fromatted && 
+                  <div className="mt-1 md:mt-1">
+                    <small>
+                        <span className="text-bold">
+                          Task Date:
+                        </span>
+                        <span className="ms-2">
+                          {taskTrackingDetails.date_fromatted}
+                        </span>
+                      </small>
+                  </div>
                 }
-                <span className={`px-5 py-1 bg-gray-200 text-gray-700 flex items-center h-10 ${!taskTrackingDetails.value ? 'rounded-l-md' : ''} ${isTaskCompleted ? 'rounded-r-md' : ''}`}>{taskTrackingDetails.value}</span>
-                {!isTaskCompleted && 
-                  <button
-                    onClick={increaseTaskValue}
-                    className="px-3 py-1 text-sm bg-green-500 text-white rounded-r-md hover:bg-green-600 transition-colors h-10"
-                  >
-                    +
-                  </button>
+                {taskTrackingDetails.updated_time && 
+                  <div className="mt-1 md:mt-1">
+                    <small>
+                        <span className="text-bold">
+                          Last Updated:
+                        </span>
+                        <span className="ms-2">
+                          {taskTrackingDetails.updated_time}
+                          </span>
+                      </small>
+                  </div>
                 }
               </div>
+              {currentTaskMeta.measurable && (
+                <div className="flex mt-3 md:mt-5 flex-col flex-1 min-h-0">
+                  <h3 className="text-sm font-semibold">
+                    <span>
+                      Goal:
+                    </span>
+                    <span className="ms-2">
+                      {taskTrackingDetails.task_details.value}
+                    </span>
+                    <span className="ms-2">
+                      {`${taskTrackingDetails.task_details.unit}`}
+                    </span>
+                  </h3>
+                  <h3 className="text-sm font-semibold">
+                    Acheived: 
+                    <span className="ms-2">
+                      {taskTrackingDetails.value}
+                    </span>
+                    <span className="ms-2">
+                      {`${taskTrackingDetails.task_details.unit}`}
+                    </span>
+                  </h3>
+                </div>
+              )}
             </div>
-          )}
+            {currentTaskMeta.measurable && (
+              <div className="flex items-center mt-3 md:mt-2 flex-1 justify-end md:justify-center">
+                  {taskTrackingDetails.value !== 0 && 
+                    <button
+                      onClick={decreaseTaskValue}
+                      className={`px-3 py-1 text-sm bg-red-500 text-white rounded-l-md hover:bg-red-600 transition-colors h-10`}
+                    >
+                      -
+                    </button>
+                  }
+                  <span className={`px-5 py-1 bg-gray-200 text-gray-700 flex items-center h-10 ${!taskTrackingDetails.value ? 'rounded-l-md' : ''} ${isTaskCompleted ? 'rounded-r-md' : ''}`}>{taskTrackingDetails.value}</span>
+                  {!isTaskCompleted && 
+                    <button
+                      onClick={increaseTaskValue}
+                      className="px-3 py-1 text-sm bg-green-500 text-white rounded-r-md hover:bg-green-600 transition-colors h-10"
+                    >
+                      +
+                    </button>
+                  }
+              </div>
+            )}
+          </div>
         </div>
       }
     </aside>

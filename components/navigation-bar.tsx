@@ -23,8 +23,8 @@ export function NavigationBar() {
   return (
     <>
       {/* Desktop Navigation */}
-      <nav className="hidden md:block border-b sticky top-0 bg-white dark:bg-black z-10 h-[60px] w-full">
-        <div className="container mx-auto px-4">
+      <nav className="hidden md:block border-b sticky top-0 bg-white dark:bg-black dark:bg-opacity-[0.7] z-10 h-[64px] w-full">
+        <div className="px-4">
           <div className="flex h-16 items-center justify-between">
             <div className="flex items-center space-x-8">
               {navItems.map((item) => (
@@ -53,7 +53,7 @@ export function NavigationBar() {
       </nav>
 
       {/* Mobile Bottom Navigation */}
-      <nav className="md:hidden fixed bottom-0 left-0 right-0 bg-white dark:bg-black border-t z-50 safe-area-pb h-[70px]">
+      <nav className="md:hidden fixed bottom-0 left-0 right-0 bg-white dark:bg-black dark:bg-opacity-[0.7] border-t z-50 safe-area-pb h-[64px]">
         <div className="flex items-center justify-around py-2">
           {navItems.map((item) => (
             <Link

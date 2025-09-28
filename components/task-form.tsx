@@ -135,47 +135,87 @@ const TaskForm: React.FC<TaskFormProps> = ({ mode, taskId }) => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
   
-    if (!user) {
-      console.error('Session error or user not found');
-      return;
-    }
     if (!isReminderEnabled) {
       task.reminder_time = '';
       task.reminder_day = '';
     }
+    delete task.task;
     if (mode === 'create') {
-      const { error } = await supabase
-        .from('tasks')
-        .insert({
-          ...task,
-          task_id: taskId,
-          user_id: user.id,
+      try {
+        const response = await fetch('/api/tasks', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            ...task,
+            task_id: taskId,
+          }),
         });
-    
-      if (error) {
-        console.error('Error inserting task:', error.message);
-      } else {
+        const data = await response.json().catch((error) => console.error(error));
+        if (!response.ok) {
+          throw new Error(data?.error || 'Failed to create task');
+        }
         router.push('/add-task');
-        console.log('Task created successfully');
+        console.info('Task created successfully');
+      } catch (error) {
+        console.error('Error creating task:', error.message);
       }
     } else {
-      const { error } = await supabase
-        .from('tasks')
-        .update({
-          ...task,
-          user_id: user.id
-        })
-        .eq('id', taskId);
-    
-      if (error) {
-        console.error('Error updating task:', error.message);
-      } else {
+      try {
+        const response = await fetch('/api/tasks', {
+          method: 'PUT',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            ...task,
+            task_id: taskId,
+          }),
+        });
+        const data = await response.json().catch((error) => console.error(error));
+        if (!response.ok) {
+          throw new Error(data?.error || 'Failed to update task');
+        }
         router.push('/add-task');
-        console.log('Task updated successfully');
+        console.info('Task updated successfully');
+      } catch (error) {
+        console.error('Error updating task:', error.message);
       }
     }
-  };
-  
+        // delete task.task;
+    // if (mode === 'create') {
+    //   const { error } = await supabase
+    //     .from('tasks')
+    //     .insert({
+    //       ...task,
+    //       task_id: taskId,
+    //       user_id: user.id,
+    //     });
+    
+    //   if (error) {
+    //     console.error('Error inserting task:', error.message);
+    //   } else {
+    //     router.push('/add-task');
+    //     console.info('Task created successfully');
+    //   }
+    // } else {
+    //   const { error } = await supabase
+    //     .from('tasks')
+    //     .update({
+    //       ...task,
+    //       user_id: user.id
+    //     })
+    //     .eq('id', taskId);
+    
+    //   if (error) {
+    //     console.error('Error updating task:', error.message);
+    //   } else {
+    //     router.push('/add-task');
+    //     console.log('Task updated successfully');
+    //   }
+    // }
+  };  
 
   const addTag = () => {
     if (newTag && !task.tags.includes(newTag)) {
@@ -207,9 +247,9 @@ const TaskForm: React.FC<TaskFormProps> = ({ mode, taskId }) => {
   }
 
   return (
-    <form onSubmit={handleSubmit} className="w-full mx-auto lg:p-8 lg:w-1/2">
-      <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-8 h-full flex flex-col">
-        <h1 className="text-lg font-bold mb-6 text-gray-900 dark:text-white mb-[40px]">
+    <form onSubmit={handleSubmit} className="lg:w-1/2 flex-1 lg:flex-none">
+      <div className="bg-white dark:bg-gray-800 lg:rounded-lg shadow-lg p-8 flex flex-col h-full">
+        <h1 className="font-bold mb-6 text-gray-900 dark:text-white mb-[40px]">
           Task - {modelData.title}
         </h1>
 
@@ -224,7 +264,7 @@ const TaskForm: React.FC<TaskFormProps> = ({ mode, taskId }) => {
                 id="task_frequency"
                 className="w-full input p-2 bg-inherit border border-t-0 border-l-0 border-r-0 rounded-none dark:border-gray-600 dark:text-white basis-1/2"              
                 value={task.task_frequency || 'DAILY'}
-                onChange={e => setTask(prev => ({ ...prev, task_frequency: e.target.value }))}>
+                onChange={e => setTask(prev => ({ ...prev, task_frequency: e.target.value as 'DAILY' | 'WEEKLY' }))}>
                   <option value="DAILY">Daily</option>
                   <option value="WEEKLY">Weekly</option>
               </select>
@@ -249,8 +289,8 @@ const TaskForm: React.FC<TaskFormProps> = ({ mode, taskId }) => {
                       setTask(prev => ({
                         ...prev,
                         unit: newUnit,
-                        value: modelData.default_target?.[newUnit] || ''
-                      }));
+                        value: modelData.default_target?.[newUnit] || 0
+                      } as TaskData));
                     }}>
                       {modelData.units.map((unit) => (
                         <option key={unit} value={unit}>
@@ -398,7 +438,7 @@ const TaskForm: React.FC<TaskFormProps> = ({ mode, taskId }) => {
               <button
                 type="button"
                 className="w-full py-2 px-4 bg-red-500 text-white rounded-md hover:bg-red-600 transition-colors"
-                onClick={() => {deleteTask(taskId)}}
+                onClick={deleteTask}
             >
                 Delete Task
               </button>

@@ -5,8 +5,7 @@ import { Inter } from 'next/font/google';
 import { ThemeProvider } from '@/components/theme-provider';
 import { NavigationBar } from '@/components/navigation-bar';
 import { usePathname } from 'next/navigation';
-import { useState } from 'react';
-import { useSupabaseClient } from '@/lib/supabaseClient';
+import { useState, useEffect } from 'react';
 import { store } from '@/lib/store';
 import { Provider, useSelector } from 'react-redux';
 import SessionInitializer from '@/components/SessionInitializer';
@@ -25,7 +24,14 @@ function AppContent({ children }: { children: React.ReactNode }) {
     canShowSideBar: state.tasks.canShowSideBar,
     selectedDate: state.tasks.selectedDate
   }));
-  
+  const [isSideBarOpen, setIsSideBarOpen] = useState(false);
+
+  useEffect(() => {
+    let nonAllowedRoutesForSideBar = ['/profile'];
+    let canAllowSideBar = !nonAllowedRoutesForSideBar.includes(pathname) && canShowSideBar;
+    setIsSideBarOpen(canAllowSideBar);
+  }, [canShowSideBar, pathname]);
+
   return (
     <ThemeProvider
       attribute="class"
@@ -33,13 +39,13 @@ function AppContent({ children }: { children: React.ReactNode }) {
       enableSystem
       disableTransitionOnChange
     >
-      <div className="flex flex-col h-screen">
+      <div className="flex flex-col">
         {shouldShowNavbar && <NavigationBar />}
-        <div className="flex flex-row h-[calc(100vh-55px)]">
-          <main className="flex flex-1 overflow-y-auto bg-white dark:bg-black">
+        <div className="flex flex-col lg:flex-row h-[calc(100vh-64px)] ">
+          <main className="flex flex-1 justify-center overflow-y-auto bg-white dark:bg-black dark:bg-opacity-[0.7]">
             {children}
           </main>
-          {canShowSideBar && 
+          {isSideBarOpen && 
             <SideBar taskId={taskTrackingId} date={selectedDate}/>
           }
         </div>
@@ -57,7 +63,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <Provider store={store}>
           <SessionInitializer onReady={() => setReady(true)} />
           {!ready ? (
-            <div className="min-h-screen flex justify-center items-center text-lg">
+            <div className="h-100vh flex justify-center items-center">
               Loading...
             </div>
           ) : (
