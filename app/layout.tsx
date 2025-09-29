@@ -4,8 +4,9 @@ import './globals.css';
 import { Inter } from 'next/font/google';
 import { ThemeProvider } from '@/components/theme-provider';
 import { NavigationBar } from '@/components/navigation-bar';
+import { MobileHeader } from '@/components/mobile-header';
 import { usePathname } from 'next/navigation';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { store } from '@/lib/store';
 import { Provider, useSelector } from 'react-redux';
 import SessionInitializer from '@/components/SessionInitializer';
@@ -25,12 +26,84 @@ function AppContent({ children }: { children: React.ReactNode }) {
     selectedDate: state.tasks.selectedDate
   }));
   const [isSideBarOpen, setIsSideBarOpen] = useState(false);
+  const [sideBarHeight, setSideBarHeight] = useState(0);
+  const [isMobile, setIsMobile] = useState(false);
+  const sideBarRef = useRef<HTMLElement>(null);
 
   useEffect(() => {
     let nonAllowedRoutesForSideBar = ['/profile'];
     let canAllowSideBar = !nonAllowedRoutesForSideBar.includes(pathname) && canShowSideBar;
     setIsSideBarOpen(canAllowSideBar);
   }, [canShowSideBar, pathname]);
+
+  // Check if we're on mobile and measure sidebar height
+  useEffect(() => {
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth < 768); // md breakpoint
+    };
+
+    const measureSideBarHeight = () => {
+      if (sideBarRef.current && isSideBarOpen) {
+        // Use requestAnimationFrame to ensure measurement happens after render
+        requestAnimationFrame(() => {
+          if (sideBarRef.current) {
+            const height = sideBarRef.current.offsetHeight;
+            setSideBarHeight(height);
+          }
+        });
+      } else {
+        setSideBarHeight(0);
+      }
+    };
+
+    checkMobile();
+    measureSideBarHeight();
+
+    window.addEventListener('resize', checkMobile);
+    window.addEventListener('resize', measureSideBarHeight);
+
+    // Use ResizeObserver to detect sidebar height changes
+    let resizeObserver: ResizeObserver;
+    if (sideBarRef.current) {
+      resizeObserver = new ResizeObserver(measureSideBarHeight);
+      resizeObserver.observe(sideBarRef.current);
+    }
+
+    return () => {
+      window.removeEventListener('resize', checkMobile);
+      window.removeEventListener('resize', measureSideBarHeight);
+      if (resizeObserver) {
+        resizeObserver.disconnect();
+      }
+    };
+  }, [isSideBarOpen]);
+
+  // Measure sidebar height when it opens/closes
+  useEffect(() => {
+    if (sideBarRef.current && isSideBarOpen) {
+      // Small delay to ensure the sidebar is fully rendered
+      const timer = setTimeout(() => {
+        if (sideBarRef.current) {
+          const height = sideBarRef.current.offsetHeight;
+          setSideBarHeight(height);
+        }
+      }, 100);
+      
+      return () => clearTimeout(timer);
+    } else {
+      setSideBarHeight(0);
+    }
+  }, [isSideBarOpen]);
+
+  // Calculate main content style based on sidebar state
+  const getMainContentStyle = () => {
+    if (isMobile && isSideBarOpen && sideBarHeight > 0) {
+      return {
+        maxHeight: `calc(100vh - 64px - ${sideBarHeight}px)` // 64px for mobile header
+      };
+    }
+    return {};
+  };
 
   return (
     <ThemeProvider
@@ -40,13 +113,21 @@ function AppContent({ children }: { children: React.ReactNode }) {
       disableTransitionOnChange
     >
       <div className="flex flex-col">
-        {shouldShowNavbar && <NavigationBar />}
-        <div className="flex flex-col lg:flex-row h-[calc(100vh-64px)] ">
-          <main className="flex flex-1 justify-center overflow-y-auto bg-white dark:bg-black dark:bg-opacity-[0.7]">
+        {shouldShowNavbar && (
+          <>
+            <NavigationBar />
+            <MobileHeader />
+          </>
+        )}
+        <div className="flex flex-col lg:flex-row min-h-screen md:min-h-[calc(100vh-64px)] pt-[64px] md:pb-0 md:pt-0">
+          <main 
+            className="flex flex-1 justify-center overflow-y-auto bg-white dark:bg-black transition-all duration-300"
+            style={getMainContentStyle()}
+          >
             {children}
           </main>
           {isSideBarOpen && 
-            <SideBar taskId={taskTrackingId} date={selectedDate}/>
+            <SideBar ref={sideBarRef} taskId={taskTrackingId} date={selectedDate}/>
           }
         </div>
       </div>

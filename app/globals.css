@@ -2,6 +2,55 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Mobile viewport fixes for iOS Safari */
+@supports (-webkit-touch-callout: none) {
+  /* iOS Safari specific styles */
+  .mobile-viewport {
+    height: -webkit-fill-available;
+    min-height: -webkit-fill-available;
+  }
+}
+
+/* Ensure proper safe area support */
+.safe-area-bottom {
+  padding-bottom: env(safe-area-inset-bottom);
+}
+
+/* Prevent mobile zoom on input focus */
+input, textarea, select {
+  font-size: 16px !important;
+  /* Additional mobile-specific fixes */
+  -webkit-appearance: none;
+  border-radius: 0;
+}
+
+/* Ensure consistent input styling with zoom prevention */
+.input {
+  font-size: 16px !important;
+}
+
+/* iOS Safari specific input fixes */
+@supports (-webkit-touch-callout: none) {
+  input[type="text"],
+  input[type="email"], 
+  input[type="number"],
+  input[type="date"],
+  input[type="time"],
+  textarea,
+  select {
+    font-size: 16px !important;
+    transform: translateZ(0); /* Force hardware acceleration */
+  }
+}
+
+/* Mobile header layout */
+@media (max-width: 768px) {
+  .mobile-content {
+    padding-top: 64px; /* Account for fixed header */
+    min-height: calc(100vh - 64px);
+  }
+}
+
 :root {
   --foreground-rgb: 0, 0, 0;
   --background-start-rgb: 214, 219, 220;

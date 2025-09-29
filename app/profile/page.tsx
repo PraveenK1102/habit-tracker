@@ -125,8 +125,8 @@ export default function Profile() {
 
   return (
     <div className="flex justify-center flex-col lg:w-1/2 flex-1 lg:flex-none">
-      <form onSubmit={handleSubmit} className="flex flex-1">
-        <div className="flex flex-col flex-1 justify-between bg-white dark:bg-gray-800 lg:rounded-lg shadow-lg p-8 w-full">
+      <form onSubmit={handleSubmit} className="flex flex-1 bg-white dark:bg-gray-800 lg:rounded-lg shadow-lg p-8 w-full overflow-y-auto">
+        <div className="flex flex-col flex-1 justify-between">
           <div className="space-y-6">
             <h1 className="text-lg font-bold mb-6 text-center dark:text-white">
               Profile Settings
@@ -260,15 +260,15 @@ export default function Profile() {
               </select>
             </div>
           </div>
-          <div>
+          <div className="pt-5">
             <button
-                type="submit"
-                className={`w-full bg-blue-500 text-white py-2 px-4 rounded-md transition-colors ${
-                  profileSaving ? 'opacity-50 cursor-not-allowed' : 'hover:bg-blue-600'
-                }`}
-              >
-                {profileSaving ? 'Saving...' : 'Save Changes'}
-              </button>
+              type="submit"
+              className={`w-full bg-blue-500 text-white py-2 px-4 rounded-md transition-colors ${
+                profileSaving ? 'opacity-50 cursor-not-allowed' : 'hover:bg-blue-600'
+              }`}
+            >
+              {profileSaving ? 'Saving...' : 'Save Changes'}
+            </button>
           </div>
         </div>
       </form>

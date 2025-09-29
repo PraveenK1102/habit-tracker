@@ -156,7 +156,13 @@ const TaskForm: React.FC<TaskFormProps> = ({ mode, taskId }) => {
         if (!response.ok) {
           throw new Error(data?.error || 'Failed to create task');
         }
-        router.push('/add-task');
+        // Route to home page with the newly created task ID for highlighting
+        const createdTaskId = data?.data?.id;
+        if (createdTaskId) {
+          router.push(`/?highlight=${createdTaskId}`);
+        } else {
+          router.push('/');
+        }
         console.info('Task created successfully');
       } catch (error) {
         console.error('Error creating task:', error.message);

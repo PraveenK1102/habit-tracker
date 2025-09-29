@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState, useRef } from 'react'
+import { useEffect, useState, useRef, forwardRef } from 'react'
 import { useSupabaseClient } from '@/lib/supabaseClient';
 import { useSelector, useDispatch } from 'react-redux';
 import { TaskMetaProps, TaskTrackingDetails } from '@/lib/types';
@@ -9,7 +9,7 @@ import { setCanShowSideBar, setTaskTrackingId, setSelectedDate } from '@/lib/fea
 import { convertUnit } from '@/lib/convertion';
 import { RootState } from '@/lib/store';
 
-export default function SideBar(props: { taskId: string; date: string}) {
+const SideBar = forwardRef<HTMLElement, { taskId: string; date: string }>(function SideBar(props, ref) {
   let { taskId, date } = props;
   const [taskTrackingDetails, setTaskTrackingDetails] = useState<TaskTrackingDetails>(taskTrackingDetailsDefaultValues);
   const [currentTaskMeta, setCurrentTaskMeta] = useState<TaskMetaProps>(taskMetaPropsDefaultValues);
@@ -280,7 +280,10 @@ export default function SideBar(props: { taskId: string; date: string}) {
     setCurrentTaskMeta(taskMetaPropsDefaultValues);
   }
   return (
-    <aside className="lg:w-80 overflow-hidden md:overflow-y-auto bg-white dark:bg-black md:border-l border-t px-5 pt-2 pb-5 md:fixed md:relative bottom-[64px] lg:bottom-0 left-0 right-0 md:bottom-auto md:left-auto md:right-auto md:h-auto rounded-t-lg md:rounded-none flex flex-col md:flex w-full">
+    <aside 
+      ref={ref}
+      className="lg:w-80 overflow-hidden md:overflow-y-auto bg-white dark:bg-black md:border-l border-t px-5 pt-2 pb-5 md:fixed md:relative bottom-0 lg:bottom-0 left-0 right-0 md:bottom-auto md:left-auto md:right-auto md:h-auto rounded-t-lg md:rounded-none flex flex-col md:flex w-full"
+    >
       {loading ? (
         <div className="flex justify-center items-center text-sm w-full">
           Fetching Details...
@@ -383,4 +386,6 @@ export default function SideBar(props: { taskId: string; date: string}) {
       }
     </aside>
   )
-}
+});
+
+export default SideBar;

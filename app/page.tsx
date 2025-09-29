@@ -7,7 +7,7 @@ import { RootState } from '@/lib/store';
 import { useSelector, useDispatch } from 'react-redux';
 import { setCanShowSideBar, setTaskTrackingId, setSelectedDate } from '@/lib/features/tasksSlice';
 import Calendar from '@/components/Calendar';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { TaskData } from '@/lib/types';
 
 export default function Home() {
@@ -19,6 +19,8 @@ export default function Home() {
   const [tasks, setTasks] = useState<TaskData[]>([]);
   const [currentDate, setCurrentDate] = useState<string>(new Date().toISOString().split('T')[0]);
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const highlightTaskId = searchParams.get('highlight');
   
   const loadDetails = React.useCallback(async (date) => {
     if (!user) return;
@@ -63,6 +65,20 @@ export default function Home() {
     loadDetails(currentDate);
   }, [currentDate, loadDetails]);
 
+  // Remove highlight parameter after 3 seconds to stop the animation
+  useEffect(() => {
+    if (highlightTaskId) {
+      const timer = setTimeout(() => {
+        // Remove the highlight parameter from URL without triggering a page reload
+        const url = new URL(window.location.href);
+        url.searchParams.delete('highlight');
+        window.history.replaceState({}, '', url.toString());
+      }, 3000);
+
+      return () => clearTimeout(timer);
+    }
+  }, [highlightTaskId]);
+
 
   const handleTaskDetails = (taskId: string) => () => {
     dispatch(setCanShowSideBar(true));
@@ -70,18 +86,13 @@ export default function Home() {
     dispatch(setSelectedDate(currentDate));
   }
 
-  const handleCloseSideBar = () => {
-    dispatch(setCanShowSideBar(false));
-    dispatch(setTaskTrackingId(''));
-  }
-
   const onDateSelect = React.useCallback((dateStr: string) => {
     setCurrentDate(dateStr);
   }, [])
   return (
-    <div className="px-4 overflow-x-hidden h-full">
+    <div className="px-4 overflow-x-hidden h-full w-full">
       <div className="flex flex-col space-y-5 flex-1 h-full">
-        <div className="w-full py-2 lg:pt-4 pb-1 sticky top-160 bg-white dark:bg-black dark:bg-opacity-[0.7] z-10">
+        <div className="w-full py-2 lg:pt-4 pb-1 sticky top-160 bg-white dark:bg-black z-10">
             <Calendar 
               onDateSelect={onDateSelect}
               currentDate={currentDate}
@@ -91,14 +102,14 @@ export default function Home() {
               <h1 className="text-sm font-bold">Your Tasks</h1>
               <Link 
                 href="/add-task"
-                className="px-3 lg:px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600 transition-colors text-sm touch-manipulation"
+                className="px-2 py-1 md:px-4 md:py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600 transition-colors text-sm touch-manipulation"
                 >
                 Add New Task
               </Link>
             </div>
           </div>
 
-        <div className="flex-1 overflow-y-auto pb-4">
+        <div className="flex-1 overflow-y-auto pb-5">
           {tasks.length === 0 && !loading ? (
             <div className="flex justify-center items-center text-sm w-full h-32 lg:h-48 text-center px-4">
               You have no tasks. Click the button above to add a new task.
@@ -110,11 +121,17 @@ export default function Home() {
             </div>
           ) : (
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 lg:gap-6">
-              {tasks.map((task) => (
-                <div key={task.id} className="w-full">
-                  <div onClick={handleTaskDetails(task.id)} className="block h-full">
-                    <div className="flex flex-col bg-white dark:bg-gray-800 rounded-lg shadow-lg hover:shadow-xl transition-all p-4 h-full lg:min-h-[250px] cursor-pointer touch-manipulation">
-                      <div className="flex justify-between pb-2 mb-2">
+              {tasks.map((task) => {
+                const isHighlighted = highlightTaskId === task.id;
+                return (
+                  <div key={task.id} className="w-full">
+                    <div onClick={handleTaskDetails(task.id)}>
+                      <div className={`flex flex-col rounded-lg shadow-lg hover:shadow-xl transition-all p-4 h-full h-[80px] md:min-h-[250px] cursor-pointer touch-manipulation ${
+                        isHighlighted 
+                          ? 'bg-blue-50 dark:bg-blue-900/30 border-2 border-blue-500 animate-pulse' 
+                          : 'bg-white dark:bg-gray-800'
+                      }`}>
+                      <div className="flex justify-between pb-2">
                         <h2 
                           className="text-sm font-medium cursor-pointer text-gray-400 hover:underline line-clamp-2 mr-2"
                           onClick={(e) => {
@@ -133,7 +150,8 @@ export default function Home() {
                                 task.tags.length > 1 ?
                                   `${task.tags.length} tags` : 
                                   task.tags[0] :
-                                'No Tags'}
+                                  <span className="text-gray-400 text-xs md:text-sm">No Tags</span>
+                                }
                             </span>
                         </div>
                       </div>
@@ -142,7 +160,7 @@ export default function Home() {
                         </div>
                         <div className="flex items-center">
                           <Users className="h-3 lg:h-4 w-3 lg:w-4 mr-1" />
-                          <span className="truncate">{task.friends.length} friends</span>
+                          <span className="truncate text-xs md:text-sm">{task.friends.length} friends</span>
                         </div>
                       </div>
                       <p className="mt-auto lg:text-sm text-gray-600 dark:text-gray-300 line-clamp-3 lg:line-clamp-2">
@@ -151,7 +169,8 @@ export default function Home() {
                     </div>
                   </div>
                 </div>
-              ))}
+                );
+              })}
             </div>
           )}
         </div>
