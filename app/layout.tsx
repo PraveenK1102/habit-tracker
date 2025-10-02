@@ -158,7 +158,7 @@ function AppContent({ children }: { children: React.ReactNode }) {
         )}
         <div className="flex flex-col lg:flex-row dvh-screen md:min-h-[calc(var(--vh,1vh)*100-64px)] pt-[64px] md:pb-0 md:pt-0 safe-area-left safe-area-right">
           <main 
-            className="flex flex-1 justify-center overflow-y-auto bg-white dark:bg-black transition-all duration-300"
+            className="flex flex-1 justify-center overflow-y-auto bg-white dark:bg-black transition-all duration-300 bg-white dark:bg-gray-800"
             style={getMainContentStyle()}
           >
             {children}

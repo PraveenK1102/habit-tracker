@@ -12,7 +12,6 @@ export function MobileHeader() {
 
   const menuItems = [
     { href: '/', icon: Home, label: 'Home' },
-    { href: '/task-list', icon: List, label: 'Tasks' },
     { href: '/add-task', icon: Plus, label: 'Add New Task' },
     { href: '/messages', icon: MessageCircle, label: 'Chat', notification: true },
     { href: '/profile', icon: User, label: 'Profile' },

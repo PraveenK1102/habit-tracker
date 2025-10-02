@@ -90,9 +90,9 @@ export default function Home() {
     setCurrentDate(dateStr);
   }, [])
   return (
-    <div className="px-4 overflow-x-hidden h-full w-full">
+    <div className="px-4 overflow-x-hidden w-full bg-white dark:bg-black">
       <div className="flex flex-col space-y-5 flex-1 h-full">
-        <div className="w-full py-2 lg:pt-4 pb-1 sticky top-160 bg-white dark:bg-black z-10">
+        <div className="w-full py-2 lg:pt-4 pb-1 sticky top-160 bg-white dark:bg-black z-10 border-b border-gray-200 dark:border-gray-700 pb-4">
             <Calendar 
               onDateSelect={onDateSelect}
               currentDate={currentDate}

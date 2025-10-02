@@ -124,8 +124,8 @@ export default function Profile() {
   }, [profile.gender]);
 
   return (
-    <div className="flex justify-center flex-col lg:w-1/2 flex-1 lg:flex-none">
-      <form onSubmit={handleSubmit} className="flex flex-1 bg-white dark:bg-gray-800 lg:rounded-lg shadow-lg p-8 w-full overflow-y-auto">
+    <div className="flex justify-center flex-col lg:w-1/2 flex-1 lg:flex-none bg-white dark:bg-gray-800 ">
+      <form onSubmit={handleSubmit} className="flex flex-1 lg:rounded-lg shadow-lg p-8 w-full overflow-y-auto">
         <div className="flex flex-col flex-1 justify-between">
           <div className="space-y-6">
             <h1 className="text-lg font-bold mb-6 text-center dark:text-white">

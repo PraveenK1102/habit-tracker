@@ -253,8 +253,8 @@ const TaskForm: React.FC<TaskFormProps> = ({ mode, taskId }) => {
   }
 
   return (
-    <form onSubmit={handleSubmit} className="lg:w-1/2 flex-1 lg:flex-none">
-      <div className="bg-white dark:bg-gray-800 lg:rounded-lg shadow-lg p-8 flex flex-col h-full">
+    <form onSubmit={handleSubmit} className="lg:w-1/2 flex-1 lg:flex-none ">
+      <div className="lg:rounded-lg shadow-lg p-8 flex flex-col h-full">
         <h1 className="font-bold mb-6 text-gray-900 dark:text-white mb-[40px]">
           Task - {modelData.title}
         </h1>
@@ -433,7 +433,7 @@ const TaskForm: React.FC<TaskFormProps> = ({ mode, taskId }) => {
             </div>
           </div>
 
-          <div className="flex flex-row gap-4 mt-auto">
+          <div className="flex flex-row gap-4 mt-auto pb-4">
             <button
               type="submit"
               className="w-full py-2 px-4 bg-blue-500 text-white rounded-md hover:bg-blue-600 transition-colors"

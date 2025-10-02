@@ -43,7 +43,7 @@ export default function TaskList() {
 
 
   return (
-    <div className="flex flex-col space-y-5">
+    <div className="flex flex-col space-y-5 bg-white dark:bg-black">
       <div className="overflow-y-auto">
         <div className="z-10 sticky top-0 bg-white dark:bg-black dark:bg-opacity-[0.8] px-5">
           <div className="flex justify-between text-sm bg-white dark:bg-black dark:bg-opacity-[0.9] pt-4">
@@ -57,7 +57,7 @@ export default function TaskList() {
                 value={searchTask}
                 onChange={(e) => setSearchTask(e.target.value)}
                 placeholder="Search task..."
-                className="search-input bg-inherit border border-t-0 border-l-0 border-r-0 rounded-none dark:border-whilte dark:text-white text-sm"
+                className="search-input bg-inherit border border-t-0 border-l-0 border-r-0 rounded-none dark:border-whilte dark:text-white text-xs"
               />
             </div>
           </div>

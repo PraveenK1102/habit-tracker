@@ -183,6 +183,7 @@ input, textarea, select {
   padding: 8px;
   width: 100%;
   transition: border-color 0.3s;
+  font-size: 12px !important; /* Override global 16px rule */
   @media screen and (max-width: 768px) {
     width: 120px;
   }
