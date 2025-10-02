@@ -79,6 +79,40 @@ input[type="checkbox"] {
   font-size: 16px !important;
 }
 
+/* Fixed sidebar positioning for desktop */
+@media (min-width: 768px) {
+  .sidebar-fixed {
+    position: fixed;
+    top: 64px;
+    right: 0;
+    bottom: 0;
+    width: 320px; /* lg:w-80 = 20rem = 320px */
+    height: calc(100vh - 64px);
+    z-index: 20;
+  }
+  
+  .main-with-sidebar {
+    margin-right: 320px;
+  }
+}
+
+/* Ensure proper z-index stacking */
+.navbar-desktop {
+  z-index: 50;
+}
+
+.navbar-mobile {
+  z-index: 50;
+}
+
+.calendar-sticky {
+  z-index: 40;
+}
+
+.sidebar {
+  z-index: 20;
+}
+
 /* iOS Safari specific input fixes */
 @supports (-webkit-touch-callout: none) {
   input[type="text"],

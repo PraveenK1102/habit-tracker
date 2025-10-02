@@ -47,6 +47,8 @@ export type TaskData = {
   task_frequency: 'DAILY' | 'WEEKLY';
   reminder_day: 'MONDAY' | 'TUESDAY' | 'WEDNESDAY' | 'THURSDAY' | 'FRIDAY' | 'SATURDAY' | 'SUNDAY' | '';
   reminder_time: string;
+  prefered_start_time: string;
+  prefered_end_time: string;
   tags: string[];
   friends: string[];
   description?: string;

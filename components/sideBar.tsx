@@ -282,7 +282,7 @@ const SideBar = forwardRef<HTMLElement, { taskId: string; date: string }>(functi
   return (
     <aside 
       ref={ref}
-      className="lg:w-80 overflow-hidden md:overflow-y-auto bg-white dark:bg-black md:border-l border-t px-5 pt-2 pb-5 md:fixed md:relative mobile-sidebar md:bottom-auto md:left-auto md:right-auto md:h-auto rounded-t-lg md:rounded-none flex flex-col md:flex w-full safe-area-bottom"
+      className="lg:w-80 overflow-hidden md:overflow-y-auto bg-white dark:bg-black md:border-l border-t px-5 pt-2 pb-5 md:fixed md:top-[64px] md:right-0 md:bottom-0 md:h-[calc(100vh-64px)] mobile-sidebar md:left-auto rounded-t-lg md:rounded-none flex flex-col md:flex w-full safe-area-bottom z-20"
     >
       {loading ? (
         <div className="flex justify-center items-center text-sm w-full">
@@ -290,21 +290,23 @@ const SideBar = forwardRef<HTMLElement, { taskId: string; date: string }>(functi
         </div>
         ) :
         <div className="flex flex-col flex-1 overflow-hidden md:overflow-visible space-y-4">
-          <div className="flex" style={{alignSelf: 'end'}}>
-            <button 
-              className="text-gray-300 hover:text-gray-100 transition-colors" 
-              onClick={removeSideBar}
-              >
-                x
-            </button>
+          <div className="flex flex-row justify-between">
+            <h2 className="text-sm font-semibold truncate md:truncate-none">Task - {currentTaskMeta.task}</h2>
+            <div className="flex" style={{alignSelf: 'end'}}>
+              <button 
+                className="text-gray-300 hover:text-gray-100 transition-colors" 
+                onClick={removeSideBar}
+                >
+                  x
+              </button>
+            </div>
           </div>
           <div className="flex flex:row md:flex-col flex-1 justify-between">
             <div>
-              <h2 className="text-sm font-semibold truncate md:truncate-none">Task - {currentTaskMeta.task}</h2>
-              <div className="mt-1 md:mt-2">
+              <div className="">
                 <small className="md:text-sm">
                   <span className="text-bold">
-                    Started At:
+                    Task Created at :
                   </span>
                   <span className="ms-2">
                     {taskTrackingDetails.task_details?.created_at_formatted}
@@ -318,6 +320,18 @@ const SideBar = forwardRef<HTMLElement, { taskId: string; date: string }>(functi
                         </span>
                         <span className="ms-2">
                           {taskTrackingDetails.date_fromatted}
+                        </span>
+                      </small>
+                  </div>
+                }
+                {taskTrackingDetails.task_details.reminder_time &&
+                  <div className="">
+                    <small>
+                        <span className="text-bold">
+                          Reminder Time:
+                        </span>
+                        <span className="ms-2">
+                          {taskTrackingDetails.task_details.reminder_time}
                         </span>
                       </small>
                   </div>
@@ -361,7 +375,7 @@ const SideBar = forwardRef<HTMLElement, { taskId: string; date: string }>(functi
               )}
             </div>
             {currentTaskMeta.measurable && (
-              <div className="flex items-center mt-3 md:mt-2 flex-1 justify-end md:justify-center">
+              <div className="flex items-center flex-1 justify-end md:justify-center">
                   {taskTrackingDetails.value !== 0 && 
                     <button
                       onClick={decreaseTaskValue}

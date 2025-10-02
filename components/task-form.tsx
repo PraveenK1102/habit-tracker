@@ -33,6 +33,56 @@ let modelData: {
   measurable?: boolean;
 } = {};
 
+// Helper function to convert 12-hour format to 24-hour format for HTML inputs
+const convertTo24Hour = (timeString: string): string => {
+  if (!timeString) return '';
+  
+  // If already in 24-hour format (HH:MM), return as-is
+  if (/^\d{1,2}:\d{2}$/.test(timeString)) {
+    return timeString;
+  }
+  
+  // Handle 12-hour format (e.g., "11:31 PM" or "11:31PM")
+  const match = timeString.match(/^(\d{1,2}):(\d{2})\s*(AM|PM)$/i);
+  if (match) {
+    let [, hours, minutes, period] = match;
+    let hour24 = parseInt(hours);
+    
+    if (period.toUpperCase() === 'PM' && hour24 !== 12) {
+      hour24 += 12;
+    } else if (period.toUpperCase() === 'AM' && hour24 === 12) {
+      hour24 = 0;
+    }
+    
+    return `${hour24.toString().padStart(2, '0')}:${minutes}`;
+  }
+  
+  // Return as-is if format not recognized
+  return timeString;
+};
+
+// Helper function to convert 24-hour format to 12-hour format for display/storage
+const convertTo12Hour = (timeString: string): string => {
+  if (!timeString) return '';
+  
+  const match = timeString.match(/^(\d{1,2}):(\d{2})$/);
+  if (match) {
+    let [, hours, minutes] = match;
+    let hour = parseInt(hours);
+    const period = hour >= 12 ? 'PM' : 'AM';
+    
+    if (hour === 0) {
+      hour = 12;
+    } else if (hour > 12) {
+      hour -= 12;
+    }
+    
+    return `${hour}:${minutes} ${period}`;
+  }
+  
+  return timeString;
+};
+
 const TaskForm: React.FC<TaskFormProps> = ({ mode, taskId }) => {
   const session = useSelector((state: RootState) => state.session.session);
   const user = useSelector((state: RootState) => state.session.user);
@@ -47,6 +97,8 @@ const TaskForm: React.FC<TaskFormProps> = ({ mode, taskId }) => {
     task_frequency: 'DAILY',
     reminder_day: '',
     reminder_time: '',
+    prefered_start_time: null,
+    prefered_end_time: null,
     tags: [],
     friends: [],
     description: '',
@@ -92,7 +144,39 @@ const TaskForm: React.FC<TaskFormProps> = ({ mode, taskId }) => {
     if (error) {
       console.error('Error fetching task:', error.message);
     } else if (data) {
-      setTask(data);
+      // Extract metadata from tags if it exists (workaround for schema mismatch)
+      let taskData = { ...data };
+      
+      if (data.tags && Array.isArray(data.tags)) {
+        const metadataTag = data.tags.find((tag: string) => tag.startsWith('__metadata__:'));
+        if (metadataTag) {
+          try {
+            const metadata = JSON.parse(metadataTag.replace('__metadata__:', ''));
+            // Merge metadata back into taskData
+            taskData = { ...taskData, ...metadata };
+            // Remove the metadata tag from the tags array
+            taskData.tags = data.tags.filter((tag: string) => !tag.startsWith('__metadata__:'));
+          } catch (e) {
+            console.warn('Failed to parse metadata from tags:', e);
+          }
+        }
+      }
+      
+      // Time fields are now stored as TEXT - handle both formats
+      // Convert 12-hour format to 24-hour for HTML time inputs if needed
+      if (taskData.prefered_start_time && typeof taskData.prefered_start_time === 'string') {
+        taskData.prefered_start_time = convertTo24Hour(taskData.prefered_start_time);
+      }
+      
+      if (taskData.prefered_end_time && typeof taskData.prefered_end_time === 'string') {
+        taskData.prefered_end_time = convertTo24Hour(taskData.prefered_end_time);
+      }
+      
+      if (taskData.reminder_time && typeof taskData.reminder_time === 'string') {
+        taskData.reminder_time = convertTo24Hour(taskData.reminder_time);
+      }
+      
+      setTask(taskData);
     } else {
       console.warn('No task data found in this taskId.');
     }
@@ -108,6 +192,8 @@ const TaskForm: React.FC<TaskFormProps> = ({ mode, taskId }) => {
       task_frequency: 'DAILY',
       reminder_day: '',
       reminder_time: getTime(),
+      prefered_start_time: null,
+      prefered_end_time: null,
       tags: [],
       friends: [],
       description: '',
@@ -150,6 +236,10 @@ const TaskForm: React.FC<TaskFormProps> = ({ mode, taskId }) => {
           body: JSON.stringify({
             ...task,
             task_id: taskId,
+            // Convert times to 12-hour format for storage
+            prefered_start_time: task.prefered_start_time ? convertTo12Hour(task.prefered_start_time) : '',
+            prefered_end_time: task.prefered_end_time ? convertTo12Hour(task.prefered_end_time) : '',
+            reminder_time: task.reminder_time ? convertTo12Hour(task.reminder_time) : '',
           }),
         });
         const data = await response.json().catch((error) => console.error(error));
@@ -177,6 +267,10 @@ const TaskForm: React.FC<TaskFormProps> = ({ mode, taskId }) => {
           body: JSON.stringify({
             ...task,
             task_id: taskId,
+            // Convert times to 12-hour format for storage
+            prefered_start_time: task.prefered_start_time ? convertTo12Hour(task.prefered_start_time) : '',
+            prefered_end_time: task.prefered_end_time ? convertTo12Hour(task.prefered_end_time) : '',
+            reminder_time: task.reminder_time ? convertTo12Hour(task.reminder_time) : '',
           }),
         });
         const data = await response.json().catch((error) => console.error(error));
@@ -259,7 +353,7 @@ const TaskForm: React.FC<TaskFormProps> = ({ mode, taskId }) => {
           Task - {modelData.title}
         </h1>
 
-        <div className="flex flex-col gap-6 flex-1">
+        <div className="flex flex-col gap-8 flex-1">
           {/* Task Frequency */}
           <div className="space-y-2">
             <label className="block text-sm font-medium text-gray-700 dark:text-gray-200">
@@ -329,6 +423,26 @@ const TaskForm: React.FC<TaskFormProps> = ({ mode, taskId }) => {
                 type="date"
                 value={task.to_date}
                 onChange={e => setTask(prev => ({ ...prev, to_date: e.target.value }))}
+                className="w-full input p-2 bg-inherit border border-t-0 border-l-0 border-r-0 rounded-none dark:border-gray-600 dark:text-white"
+              />
+            </div>
+          </div>
+          {/* Prefered time */}
+          <div className="w-full space-y-4">
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mr-[40px]">
+              Prefered time
+            </label>
+            <div className="flex flex-row gap-4">
+              <input
+                type="time"
+                value={task.prefered_start_time}
+                onChange={e => setTask(prev => ({ ...prev, prefered_start_time: e.target.value }))}
+                className="w-full input p-2 bg-inherit border border-t-0 border-l-0 border-r-0 rounded-none dark:border-gray-600 dark:text-white"
+              />
+              <input
+                type="time"
+                value={task.prefered_end_time}
+                onChange={e => setTask(prev => ({ ...prev, prefered_end_time: e.target.value }))}
                 className="w-full input p-2 bg-inherit border border-t-0 border-l-0 border-r-0 rounded-none dark:border-gray-600 dark:text-white"
               />
             </div>

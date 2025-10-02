@@ -92,13 +92,13 @@ export default function Home() {
   return (
     <div className="px-4 overflow-x-hidden w-full bg-white dark:bg-black">
       <div className="flex flex-col space-y-5 flex-1 h-full">
-        <div className="w-full py-2 lg:pt-4 pb-1 sticky top-160 bg-white dark:bg-black z-10 border-b border-gray-200 dark:border-gray-700 pb-4">
+        <div className="w-full py-2 lg:pt-4 pb-1 sticky bg-white dark:bg-black z-40 border-b border-gray-200 dark:border-gray-700 pb-4">
             <Calendar 
               onDateSelect={onDateSelect}
               currentDate={currentDate}
               setCurrentDate={setCurrentDate}
               />
-            <div className="flex items-center justify-between pt-5">
+            <div className="flex items-center justify-between pt-1">
               <h1 className="text-sm font-bold">Your Tasks</h1>
               <Link 
                 href="/add-task"
@@ -143,7 +143,7 @@ export default function Home() {
                         </h2>
                         <div className="flex gap-1 lg:gap-2 flex-shrink-0">
                           <span 
-                            className="inline-flex items-center px-2 py-1 rounded-full font-medium bg-gray-100 dark:bg-gray-700"
+                            className="inline-flex items-center px-2 py-1 rounded-full font-medium"
                             >
                               <Tag className="h-3 w-3 mr-1" />
                               {task.tags.length ?
@@ -166,6 +166,16 @@ export default function Home() {
                       <p className="mt-auto lg:text-sm text-gray-600 dark:text-gray-300 line-clamp-3 lg:line-clamp-2">
                         {task.description}
                       </p>
+                      {task.prefered_start_time && 
+                        <div className="flex gap-1">
+                          <small className="text-bold">
+                            Prefered time - 
+                          </small>
+                          <small className="text-gray-600 dark:text-gray-300">
+                            {task.prefered_start_time} - {task.prefered_end_time}
+                          </small>
+                        </div>
+                      }
                     </div>
                   </div>
                 </div>

@@ -107,14 +107,66 @@ export async function POST(request: Request) {
     }
 
     // Remove empty id field to let database auto-generate
-    const { id, ...taskData } = data;
+    const { id, ...rawData } = data;
+    
+    // Map to the database schema - include fields that exist based on the error
+    const taskData: any = {
+      // Core fields from original schema
+      from_date: rawData.from_date,
+      to_date: rawData.to_date,
+      tags: Array.isArray(rawData.tags) ? rawData.tags : [],
+      description: rawData.description || '',
+      
+      // Fields that exist based on NOT NULL constraint errors
+      task_frequency: rawData.task_frequency || 'DAILY',
+      task_id: rawData.task_id || '',
+      reminder_day: rawData.reminder_day || '',
+      unit: rawData.unit || '',
+      value: rawData.value || 0,
+    };
+    
+    // Handle friends array properly
+    if (rawData.friends) {
+      taskData.friends = Array.isArray(rawData.friends) ? rawData.friends : [];
+    }
+    
+    // Handle time fields as TEXT - store directly without conversion
+    if (rawData.reminder_time) {
+      taskData.reminder_time = rawData.reminder_time; // Store as-is (e.g., "11:31 PM")
+    }
+    
+    if (rawData.prefered_start_time) {
+      taskData.prefered_start_time = rawData.prefered_start_time; // Store as-is (e.g., "11:31 AM")
+    }
+    
+    if (rawData.prefered_end_time) {
+      taskData.prefered_end_time = rawData.prefered_end_time; // Store as-is (e.g., "11:31 PM")
+    }
+    
+    // If we have a title field in the original schema, use description as title
+    if (rawData.description) {
+      taskData.title = rawData.description;
+    }
+
+    console.log('Processed task data:', taskData);
+    console.log('Data types:', {
+      prefered_start_time: typeof taskData.prefered_start_time,
+      prefered_end_time: typeof taskData.prefered_end_time,
+      reminder_time: typeof taskData.reminder_time,
+      tags: Array.isArray(taskData.tags) ? 'array' : typeof taskData.tags,
+      friends: Array.isArray(taskData.friends) ? 'array' : typeof taskData.friends
+    });
+    
+    const insertData = {
+      ...taskData,
+      user_id: userData.user.id
+    };
+    
+    console.log('Final insert data:', insertData);
     
     const { data: tasksData, error: tasksError } = await supabase
       .from('tasks')
-      .insert({
-        ...taskData,
-        user_id: userData.user.id
-      })
+      .insert(insertData)
       .select()
       .single();
       
@@ -149,11 +201,55 @@ export async function PUT(request: Request) {
       );
     }
     
+    // Process the update data - map to original schema
+    const rawData = { ...data };
+    
+    // Map to the database schema - include fields that exist based on the error
+    const updateData: any = {
+      // Core fields from original schema
+      from_date: rawData.from_date,
+      to_date: rawData.to_date,
+      tags: Array.isArray(rawData.tags) ? rawData.tags : [],
+      description: rawData.description || '',
+      
+      // Fields that exist based on NOT NULL constraint errors
+      task_frequency: rawData.task_frequency || 'DAILY',
+      task_id: rawData.task_id || '',
+      reminder_day: rawData.reminder_day || '',
+      unit: rawData.unit || '',
+      value: rawData.value || 0,
+    };
+    
+    // Handle friends array properly
+    if (rawData.friends) {
+      updateData.friends = Array.isArray(rawData.friends) ? rawData.friends : [];
+    }
+    
+    // Handle time fields as TEXT - store directly without conversion
+    if (rawData.reminder_time) {
+      updateData.reminder_time = rawData.reminder_time; // Store as-is (e.g., "11:31 PM")
+    }
+    
+    if (rawData.prefered_start_time) {
+      updateData.prefered_start_time = rawData.prefered_start_time; // Store as-is (e.g., "11:31 AM")
+    }
+    
+    if (rawData.prefered_end_time) {
+      updateData.prefered_end_time = rawData.prefered_end_time; // Store as-is (e.g., "11:31 PM")
+    }
+    
+    // If we have a title field in the original schema, use description as title
+    if (rawData.description) {
+      updateData.title = rawData.description;
+    }
+    
+    console.log('Processed update data:', updateData);
+    
     // Use the actual record ID from data.id
     const { data: tasksData, error: tasksError } = await supabase
       .from('tasks')
       .update({
-        ...data,
+        ...updateData,
         user_id: userData.user.id
       })
       .eq('id', data.id)

@@ -145,10 +145,6 @@ export default React.memo(function HorizontalWeekCalendar(
       }
     });
   }
-  const isSelectedDateToday = () => {
-    const today = new Date();
-    return selectedDate.toDateString() === today.toDateString();
-  }
   useEffect(() => {
     navigateToCurrentDate(null);
   }, []);
@@ -158,9 +154,9 @@ export default React.memo(function HorizontalWeekCalendar(
     navigateToCurrentDate(null);
   }
   return (
-    <div className="">
+    <div>
       <div className="my-3 lg:mb-3 flex justify-between">
-        <button className="text-sm text-blue-400" onClick={navigateToCurrentDate}>{selectedDate.toDateString()}</button>
+        <small>{selectedDate.toDateString()}</small>
         {!calendarOpen && (
           <button className="text-sm text-blue-400" onClick={openCalendar}>Change Date</button>
           )}

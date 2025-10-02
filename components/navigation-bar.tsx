@@ -22,7 +22,7 @@ export function NavigationBar() {
   
   return (
     /* Desktop Navigation Only */
-    <nav className="hidden md:block border-b sticky top-0 bg-white dark:bg-black z-10 h-[64px] w-full">
+    <nav className="hidden md:block border-b sticky top-0 bg-white dark:bg-black z-50 h-[64px] w-full">
       <div className="px-4">
         <div className="flex h-16 items-center justify-between">
           <div className="flex items-center space-x-8">
