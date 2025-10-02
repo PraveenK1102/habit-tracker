@@ -29,7 +29,20 @@ export class NotificationManager {
 
   // Check if notifications are supported
   isNotificationSupported(): boolean {
-    return 'Notification' in window && 'serviceWorker' in navigator;
+    // More comprehensive browser support check
+    const hasNotification = typeof window !== 'undefined' && 'Notification' in window;
+    const hasServiceWorker = typeof navigator !== 'undefined' && 'serviceWorker' in navigator;
+    
+    console.log('Notification support check:', {
+      hasWindow: typeof window !== 'undefined',
+      hasNotification,
+      hasServiceWorker,
+      userAgent: typeof navigator !== 'undefined' ? navigator.userAgent : 'unknown',
+      notificationPermission: hasNotification ? Notification.permission : 'unavailable'
+    });
+    
+    // Basic notification support (service worker is optional)
+    return hasNotification;
   }
 
   // Request notification permission
@@ -123,6 +136,7 @@ export class NotificationManager {
   async showNotification(title: string, body: string, taskId?: string): Promise<boolean> {
     const permission = this.getNotificationPermission();
     if (!permission.granted) {
+      console.log('Notification permission not granted');
       return false;
     }
 
@@ -153,17 +167,40 @@ export class NotificationManager {
         }
         
         await this.swRegistration.showNotification(title, notificationOptions);
+        console.log('Notification shown via service worker');
       } else {
         // Fallback to basic notification
-        new Notification(title, {
+        const notification = new Notification(title, {
           body,
           icon: '/icon-192x192.png',
           tag: taskId || 'habit-reminder'
         });
+        
+        // Add click handler for basic notifications
+        notification.onclick = () => {
+          window.focus();
+          notification.close();
+          if (taskId) {
+            // Navigate to task or trigger completion
+            window.location.href = `/?task=${taskId}`;
+          }
+        };
+        
+        console.log('Notification shown via basic API');
       }
       return true;
     } catch (error) {
       console.error('Failed to show notification:', error);
+      
+      // Ultimate fallback - browser alert (for debugging)
+      if (typeof window !== 'undefined' && window.confirm) {
+        const showAlert = window.confirm(`${title}\n\n${body}\n\nClick OK to view task.`);
+        if (showAlert && taskId) {
+          window.location.href = `/?task=${taskId}`;
+        }
+        return true;
+      }
+      
       return false;
     }
   }

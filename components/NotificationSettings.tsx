@@ -46,18 +46,105 @@ export const NotificationSettings: React.FC<NotificationSettingsProps> = ({
     }
   };
 
+  // Debug information
+  const debugInfo = {
+    hasWindow: typeof window !== 'undefined',
+    hasNotification: typeof window !== 'undefined' && 'Notification' in window,
+    hasServiceWorker: typeof navigator !== 'undefined' && 'serviceWorker' in navigator,
+    userAgent: typeof navigator !== 'undefined' ? navigator.userAgent : 'unknown',
+    isSecureContext: typeof window !== 'undefined' ? window.isSecureContext : false,
+    protocol: typeof window !== 'undefined' ? window.location.protocol : 'unknown'
+  };
+
   if (!isSupported) {
     return (
-      <div className="bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800 rounded-lg p-4">
-        <div className="flex items-center space-x-2">
-          <AlertCircle className="h-5 w-5 text-yellow-600 dark:text-yellow-400" />
-          <h3 className="font-medium text-yellow-800 dark:text-yellow-200">
-            Notifications Not Supported
-          </h3>
+      <div className="space-y-4">
+        <div className="bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800 rounded-lg p-4">
+          <div className="flex items-center space-x-2">
+            <AlertCircle className="h-5 w-5 text-yellow-600 dark:text-yellow-400" />
+            <h3 className="font-medium text-yellow-800 dark:text-yellow-200">
+              Push Notifications Not Available
+            </h3>
+          </div>
+          <div className="mt-2 space-y-2">
+            <p className="text-sm text-yellow-700 dark:text-yellow-300">
+              Push notifications aren't available in your current setup. Here are some solutions:
+            </p>
+            
+            <div className="text-sm text-yellow-700 dark:text-yellow-300">
+              <strong>Possible reasons:</strong>
+              <ul className="list-disc list-inside mt-1 space-y-1">
+                {!debugInfo.isSecureContext && (
+                  <li>🔒 Not using HTTPS (required for notifications)</li>
+                )}
+                {debugInfo.userAgent.includes('iPhone') && (
+                  <li>📱 iOS Safari - Add to Home Screen first, then enable notifications</li>
+                )}
+                {!debugInfo.hasNotification && (
+                  <li>🌐 Browser doesn't support Notification API</li>
+                )}
+                {!debugInfo.hasServiceWorker && (
+                  <li>⚙️ Service Worker not supported (affects background notifications)</li>
+                )}
+              </ul>
+            </div>
+
+            <div className="text-sm text-yellow-700 dark:text-yellow-300">
+              <strong>Solutions:</strong>
+              <ul className="list-disc list-inside mt-1 space-y-1">
+                <li>📅 Use calendar integration instead (works on all devices)</li>
+                <li>🔗 Access via HTTPS if using HTTP</li>
+                <li>📲 On mobile: Add app to home screen for better notification support</li>
+                <li>🌐 Try a different browser (Chrome, Firefox, Safari)</li>
+              </ul>
+            </div>
+          </div>
         </div>
-        <p className="mt-2 text-sm text-yellow-700 dark:text-yellow-300">
-          Your browser doesn't support push notifications. You can still use calendar integration to set reminders.
-        </p>
+
+        {/* Force enable button for testing */}
+        <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-4">
+          <h4 className="font-medium text-blue-900 dark:text-blue-200 mb-2">
+            Alternative Options:
+          </h4>
+          <div className="space-y-2">
+            <button
+              onClick={() => {
+                // Force test basic notification
+                if (typeof window !== 'undefined' && 'Notification' in window) {
+                  Notification.requestPermission().then(permission => {
+                    if (permission === 'granted') {
+                      new Notification('🧪 Test Notification', {
+                        body: 'Basic notification is working!',
+                        icon: '/icon-192x192.png'
+                      });
+                    } else {
+                      alert('Notification permission denied. Please enable in browser settings.');
+                    }
+                  });
+                } else {
+                  alert('Notifications not supported in this browser.');
+                }
+              }}
+              className="w-full px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors"
+            >
+              🧪 Force Test Basic Notification
+            </button>
+            
+            <p className="text-xs text-blue-700 dark:text-blue-300">
+              This bypasses our detection and tries to show a notification directly.
+            </p>
+          </div>
+        </div>
+
+        {/* Show debug info in development */}
+        {process.env.NODE_ENV === 'development' && (
+          <details className="bg-gray-50 dark:bg-gray-800 p-3 rounded text-xs">
+            <summary className="cursor-pointer font-medium">Debug Information</summary>
+            <pre className="mt-2 overflow-auto">
+              {JSON.stringify(debugInfo, null, 2)}
+            </pre>
+          </details>
+        )}
       </div>
     );
   }
