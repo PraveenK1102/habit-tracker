@@ -66,6 +66,14 @@ input, textarea, select {
   border-radius: 0;
 }
 
+/* Checkbox styling with outline */
+input[type="checkbox"] {
+  -webkit-appearance: checkbox; /* Restore checkbox appearance */
+  appearance: checkbox;
+  border: 1px solid #ccc;
+  outline-offset: 1px;
+}
+
 /* Ensure consistent input styling with zoom prevention */
 .input {
   font-size: 16px !important;

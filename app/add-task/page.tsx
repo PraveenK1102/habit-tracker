@@ -43,7 +43,7 @@ export default function TaskList() {
 
 
   return (
-    <div className="flex flex-col space-y-5 bg-white dark:bg-black">
+    <div className="flex flex-col flex-1 space-y-5 bg-white dark:bg-black">
       <div className="overflow-y-auto">
         <div className="z-10 sticky top-0 bg-white dark:bg-black dark:bg-opacity-[0.8] px-5">
           <div className="flex justify-between text-sm bg-white dark:bg-black dark:bg-opacity-[0.9] pt-4">
