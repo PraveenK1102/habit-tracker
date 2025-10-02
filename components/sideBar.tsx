@@ -282,7 +282,7 @@ const SideBar = forwardRef<HTMLElement, { taskId: string; date: string }>(functi
   return (
     <aside 
       ref={ref}
-      className="lg:w-80 overflow-hidden md:overflow-y-auto bg-white dark:bg-black md:border-l border-t px-5 pt-2 pb-5 md:fixed md:relative bottom-0 lg:bottom-0 left-0 right-0 md:bottom-auto md:left-auto md:right-auto md:h-auto rounded-t-lg md:rounded-none flex flex-col md:flex w-full"
+      className="lg:w-80 overflow-hidden md:overflow-y-auto bg-white dark:bg-black md:border-l border-t px-5 pt-2 pb-5 md:fixed md:relative mobile-sidebar md:bottom-auto md:left-auto md:right-auto md:h-auto rounded-t-lg md:rounded-none flex flex-col md:flex w-full safe-area-bottom"
     >
       {loading ? (
         <div className="flex justify-center items-center text-sm w-full">
