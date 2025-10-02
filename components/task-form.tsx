@@ -8,6 +8,8 @@ import { useSelector } from 'react-redux';
 import { useRouter } from 'next/navigation';
 import taskData from '@/lib/data/health_tasks';
 import { TaskData } from '@/lib/types';
+import { useNotifications } from '@/lib/hooks/useNotifications';
+import NotificationSettings from '@/components/NotificationSettings';
 // 1. Title -
 // 2. Descriptions -
 // 3. Associated Friends[] -
@@ -89,6 +91,7 @@ const TaskForm: React.FC<TaskFormProps> = ({ mode, taskId }) => {
   const tasks = useSelector((state: RootState) => state.tasks.taskmeta);
   const supabase = useSupabaseClient();
   const router = useRouter();
+  const { scheduleTaskReminder, permission } = useNotifications();
 
   const [task, setTask] = useState<TaskData>({
     id: '',
@@ -110,6 +113,8 @@ const TaskForm: React.FC<TaskFormProps> = ({ mode, taskId }) => {
   const [loading, setLoading] = useState(false);
   const [newTag, setNewTag] = useState('');
   const [isReminderEnabled, setIsReminderEnabled] = useState(false);
+  const [showNotificationSettings, setShowNotificationSettings] = useState(false);
+  const [notificationScheduled, setNotificationScheduled] = useState(false);
 
   const handleInputChange = ((e: React.ChangeEvent<HTMLInputElement>) => {
     setNewTag(e.target.value);
@@ -246,8 +251,26 @@ const TaskForm: React.FC<TaskFormProps> = ({ mode, taskId }) => {
         if (!response.ok) {
           throw new Error(data?.error || 'Failed to create task');
         }
-        // Route to home page with the newly created task ID for highlighting
+        
+        // Schedule notifications and calendar events
         const createdTaskId = data?.data?.id;
+        const taskWithId = { ...task, id: createdTaskId, task_id: taskId };
+        
+        try {
+          const results = await scheduleTaskReminder(taskWithId);
+          setNotificationScheduled(results.notification || results.calendar);
+          
+          if (results.notification) {
+            console.log('✅ Notification scheduled successfully');
+          }
+          if (results.calendar) {
+            console.log('📅 Calendar event created successfully');
+          }
+        } catch (error) {
+          console.error('Failed to schedule reminders:', error);
+        }
+        
+        // Route to home page with the newly created task ID for highlighting
         if (createdTaskId) {
           router.push(`/?highlight=${createdTaskId}`);
         } else {
@@ -525,27 +548,82 @@ const TaskForm: React.FC<TaskFormProps> = ({ mode, taskId }) => {
                 </button>
               </div>
             </div>
-            <div className="flex flex-wrap gap-2">
-              {task.tags.map(tag => (
-                <span 
-                  key={tag} 
-                  className="inline-flex items-center gap-1 px-2 py-1 bg-gray-100 dark:bg-gray-700 rounded-full text-sm"
+          <div className="flex flex-wrap gap-2">
+            {task.tags.map(tag => (
+              <span 
+                key={tag} 
+                className="inline-flex items-center gap-1 px-2 py-1 bg-gray-100 dark:bg-gray-700 rounded-full text-sm"
+              >
+                {tag}
+                <button
+                  type="button"
+                  onClick={() => setTask(prev => ({
+                    ...prev,
+                    tags: prev.tags.filter(t => t !== tag)
+                  }))}
+                  className="ml-1 text-gray-500 hover:text-gray-700 dark:text-gray-400"
                 >
-                  {tag}
-                  <button
-                    type="button"
-                    onClick={() => setTask(prev => ({
-                      ...prev,
-                      tags: prev.tags.filter(t => t !== tag)
-                    }))}
-                    className="ml-1 text-gray-500 hover:text-gray-700 dark:text-gray-400"
-                  >
-                    ×
-                  </button>
-                </span>
-              ))}
-            </div>
+                  ×
+                </button>
+              </span>
+            ))}
           </div>
+        </div>
+
+        {/* Notification & Calendar Settings */}
+        {(task.reminder_time || task.prefered_start_time || task.prefered_end_time) && (
+          <div className="space-y-4">
+            <div className="flex items-center justify-between">
+              <h3 className="text-sm font-medium text-gray-700 dark:text-gray-200">
+                📱 Notifications & Calendar
+              </h3>
+              <button
+                type="button"
+                onClick={() => setShowNotificationSettings(!showNotificationSettings)}
+                className="text-sm text-blue-600 dark:text-blue-400 hover:underline"
+              >
+                {showNotificationSettings ? 'Hide Settings' : 'Configure'}
+              </button>
+            </div>
+            
+            {showNotificationSettings && (
+              <NotificationSettings 
+                onPermissionGranted={() => setShowNotificationSettings(false)}
+                showCalendarOptions={!!(task.prefered_start_time && task.prefered_end_time)}
+              />
+            )}
+            
+            {!showNotificationSettings && (
+              <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-3">
+                <div className="text-sm text-blue-800 dark:text-blue-200">
+                  {task.reminder_time && (
+                    <div className="flex items-center space-x-2 mb-1">
+                      <span>🔔</span>
+                      <span>Reminder at {task.reminder_time}</span>
+                      {permission !== 'granted' && (
+                        <span className="text-xs text-blue-600 dark:text-blue-400">(needs permission)</span>
+                      )}
+                    </div>
+                  )}
+                  {task.prefered_start_time && task.prefered_end_time && (
+                    <div className="flex items-center space-x-2">
+                      <span>📅</span>
+                      <span>Calendar: {task.prefered_start_time} - {task.prefered_end_time}</span>
+                    </div>
+                  )}
+                </div>
+              </div>
+            )}
+            
+            {notificationScheduled && (
+              <div className="bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-lg p-3">
+                <div className="text-sm text-green-800 dark:text-green-200">
+                  ✅ Reminders have been set up for this habit!
+                </div>
+              </div>
+            )}
+          </div>
+        )}
 
           <div className="flex flex-row gap-4 mt-auto pb-4">
             <button
