@@ -1,0 +1,313 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Mobile viewport fixes for iOS Safari and Android Chrome */
+:root {
+  /* Dynamic viewport height for mobile browsers */
+  --vh: 1vh;
+  --safe-area-inset-top: env(safe-area-inset-top, 0px);
+  --safe-area-inset-bottom: env(safe-area-inset-bottom, 0px);
+  --safe-area-inset-left: env(safe-area-inset-left, 0px);
+  --safe-area-inset-right: env(safe-area-inset-right, 0px);
+}
+
+/* iOS Safari specific viewport handling */
+@supports (-webkit-touch-callout: none) {
+  .mobile-viewport {
+    height: -webkit-fill-available;
+    min-height: -webkit-fill-available;
+  }
+  
+  .mobile-full-height {
+    height: calc(var(--vh, 1vh) * 100);
+    min-height: calc(var(--vh, 1vh) * 100);
+  }
+}
+
+/* Safe area support for all mobile browsers */
+.safe-area-top {
+  padding-top: var(--safe-area-inset-top);
+}
+
+.safe-area-bottom {
+  padding-bottom: var(--safe-area-inset-bottom);
+}
+
+.safe-area-left {
+  padding-left: var(--safe-area-inset-left);
+}
+
+.safe-area-right {
+  padding-right: var(--safe-area-inset-right);
+}
+
+/* Mobile sidebar positioning with safe areas */
+.mobile-sidebar {
+  bottom: var(--safe-area-inset-bottom);
+  left: var(--safe-area-inset-left);
+  right: var(--safe-area-inset-right);
+}
+
+/* Dynamic viewport height class */
+.dvh-100 {
+  height: calc(var(--vh, 1vh) * 100);
+}
+
+.dvh-screen {
+  min-height: calc(var(--vh, 1vh) * 100);
+}
+
+/* Prevent mobile zoom on input focus */
+input, textarea, select {
+  font-size: 16px !important;
+  /* Additional mobile-specific fixes */
+  -webkit-appearance: none;
+  border-radius: 0;
+}
+
+/* Checkbox styling with outline */
+input[type="checkbox"] {
+  -webkit-appearance: checkbox; /* Restore checkbox appearance */
+  appearance: checkbox;
+  border: 1px solid #ccc;
+  outline-offset: 1px;
+}
+
+/* Ensure consistent input styling with zoom prevention */
+.input {
+  font-size: 16px !important;
+}
+
+/* Fixed sidebar positioning for desktop */
+@media (min-width: 768px) {
+  .sidebar-fixed {
+    position: fixed;
+    top: 64px;
+    right: 0;
+    bottom: 0;
+    width: 320px; /* lg:w-80 = 20rem = 320px */
+    height: calc(100vh - 64px);
+    z-index: 20;
+  }
+  
+  .main-with-sidebar {
+    margin-right: 320px;
+  }
+}
+
+/* Ensure proper z-index stacking */
+.navbar-desktop {
+  z-index: 50;
+}
+
+.navbar-mobile {
+  z-index: 50;
+}
+
+.calendar-sticky {
+  z-index: 40;
+}
+
+.sidebar {
+  z-index: 20;
+}
+
+/* iOS Safari specific input fixes */
+@supports (-webkit-touch-callout: none) {
+  input[type="text"],
+  input[type="email"], 
+  input[type="number"],
+  input[type="date"],
+  input[type="time"],
+  textarea,
+  select {
+    font-size: 16px !important;
+    transform: translateZ(0); /* Force hardware acceleration */
+  }
+}
+
+/* Mobile header layout */
+@media (max-width: 768px) {
+  .mobile-content {
+    padding-top: 64px; /* Account for fixed header */
+    min-height: calc(100vh - 64px);
+  }
+}
+
+:root {
+  --foreground-rgb: 0, 0, 0;
+  --background-start-rgb: 214, 219, 220;
+  --background-end-rgb: 255, 255, 255;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --foreground-rgb: 255, 255, 255;
+    --background-start-rgb: 0, 0, 0;
+    --background-end-rgb: 0, 0, 0;
+  }
+}
+
+@layer base {
+  :root {
+    /* Light theme */
+    --background: 0 0% 100%; /* #FFFFFF */
+    --foreground: 0 0% 3.9%;
+    --card: 0 0% 100%;
+    --card-foreground: 0 0% 3.9%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 0 0% 3.9%;
+    --primary: 0 0% 9%;
+    --primary-foreground: 0 0% 98%;
+    --secondary: 0 0% 96.1%;
+    --secondary-foreground: 0 0% 9%;
+    --muted: 0 0% 96.1%;
+    --muted-foreground: 0 0% 45.1%;
+    --accent: 0 0% 96.1%;
+    --accent-foreground: 0 0% 9%;
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 0 0% 98%;
+
+    /* Borders / inputs (light): rgba(0,0,0,0.1) */
+    --border: 0 0% 0% / 0.1;
+    --input: 0 0% 0% / 0.1;
+    --ring: 0 0% 3.9%;
+
+    /* Charts (light): #F7F9FB */
+    --chart-bg: 210 25% 97%;
+
+    --radius: 0.5rem;
+  }
+  .dark {
+    /* Dark theme */
+    --background: 0 0% 0% / 0.7; /* rgba(0,0,0,0.7) */
+    --foreground: 0 0% 98%;
+    --card: 0 0% 3.9%;
+    --card-foreground: 0 0% 98%;
+    --popover: 0 0% 3.9%;
+    --popover-foreground: 0 0% 98%;
+    --primary: 0 0% 98%;
+    --primary-foreground: 0 0% 9%;
+    --secondary: 0 0% 14.9%;
+    --secondary-foreground: 0 0% 98%;
+    --muted: 0 0% 14.9%;
+    --muted-foreground: 0 0% 63.9%;
+    --accent: 0 0% 14.9%;
+    --accent-foreground: 0 0% 98%;
+    --destructive: 0 62.8% 30.6%;
+    --destructive-foreground: 0 0% 98%;
+
+    /* Borders / inputs (dark): rgba(255,255,255,0.1) */
+    --border: 0 0% 100% / 0.1;
+    --input: 0 0% 100% / 0.1;
+    --ring: 0 0% 83.1%;
+
+    /* Charts (dark): rgba(255,255,255,0.05) */
+    --chart-bg: 0 0% 100% / 0.05;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  body {
+    @apply bg-background text-foreground text-14;
+  }
+}
+
+/* Existing styles */
+.search-input {
+  border: none;
+  border-bottom: 1px solid #ccc;
+  outline: none;
+  padding: 8px;
+  width: 100%;
+  transition: border-color 0.3s;
+  font-size: 12px !important; /* Override global 16px rule */
+  @media screen and (max-width: 768px) {
+    width: 120px;
+  }
+  @media screen and (min-width: 768px) {
+    width: 200px
+  }
+}
+
+.input {
+  border: none;
+  border-bottom: 1px solid #ccc;
+  outline: none;
+  padding: 8px;
+  width: 100%;
+  transition: border-color 0.3s;
+}
+
+.glass-container {
+  background: rgba(255, 255, 255, 0) !important;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  border-radius: 2rem;
+  box-shadow: 0 4px 30px rgba(10, 0, 0, 0.8);
+  backdrop-filter: blur(30px);
+  -webkit-backdrop-filter: blur(30px);
+}
+.input:focus {
+  border-bottom: 1.5px solid #3b82f6;
+}
+
+.dark .input:focus {
+  border-bottom: 1.5px solid #2563eb; /* Adjusted for dark mode */
+}
+
+main, aside {
+  overflow-y: auto;
+  /* Hide scrollbar for Chrome, Safari, and Opera */
+  scrollbar-width: none; /* Firefox */
+  -ms-overflow-style: none; /* IE and Edge */
+}
+
+main::-webkit-scrollbar,
+aside::-webkit-scrollbar {
+  display: none; /* Chrome, Safari, and Opera */
+}
+
+.text-xxs {
+    font-size: 0.625rem;
+    line-height: 1rem; /* You can adjust line height as needed */
+}
+
+/* Scrollbar styling for Webkit browsers */
+::-webkit-scrollbar {
+  width: 8px;              /* Fixed width */
+  height: 8px;             /* Fixed height for horizontal */
+  background-color: #f0f0f0; /* Track background */
+}
+
+::-webkit-scrollbar-track {
+  background-color: transparent; /* Track background */
+  border-radius: 8px;
+}
+
+::-webkit-scrollbar-thumb {
+  background-color: #ab0606;    /* Thumb color */
+  border-radius: 8px;
+  border: 2px solid #f0f0f0; /* Creates padding around thumb */
+  transition: background-color 0.3s ease;
+}
+
+/* Hover color change ONLY - no size change */
+::-webkit-scrollbar-thumb:hover {
+  background-color: #555;
+}
+
+/* Firefox scrollbar */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: transparent; /* thumb and track colors */
+}
+
+/* Project-specific design tokens and utilities */
+@layer utilities {
+  /* Most used text size */
+  .text-14 { font-size: 14px; line-height: 20px; }
+}
