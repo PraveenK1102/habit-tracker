@@ -11,16 +11,32 @@ export async function middleware(req: NextRequest) {
   const res = NextResponse.next();
 
   const supabase = createMiddlewareClient({ req, res });
+  const authPath = ['/sign-in', '/sign-up', '/auth/callback', '/auth/oauth', '/reset-request', '/reset-password'];
   const {
     data: { session },
   } = await supabase.auth.getSession();
 
-  const authPath = ['/sign-in', '/sign-up'];
+  if (session) {
+    const { data: userData, error: userError } = await supabase.auth.getUser();
+    if (userError || !userData?.user) {
+      await supabase.auth.signOut();
+      return NextResponse.redirect(new URL('/sign-in', req.url));
+    }
+    const { data: profile, error: profileError } = await supabase
+      .from('profiles')
+      .select('user_id')
+      .eq('user_id', userData.user.id)
+      .maybeSingle();
+    if (profileError || !profile) {
+      await supabase.auth.signOut();
+      return NextResponse.redirect(new URL('/sign-in', req.url));
+    }
+  }
   if (session && authPath.includes(req.nextUrl.pathname)) {
     return NextResponse.redirect(new URL('/', req.url));
   }
   if (!session && !authPath.includes(req.nextUrl.pathname)) {
-    return NextResponse.redirect(new URL('/sign-up', req.url));
+    return NextResponse.redirect(new URL('/sign-in', req.url));
   }
   return res;
 }

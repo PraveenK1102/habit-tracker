@@ -178,6 +178,11 @@ function AppContent({ children }: { children: React.ReactNode }) {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   const [ready, setReady] = useState(false);
+  const [hasHydrated, setHasHydrated] = useState(false);
+
+  useEffect(() => {
+    setHasHydrated(true);
+  }, []);
 
   return (
     <html lang="en" suppressHydrationWarning>
@@ -195,7 +200,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           <SessionInitializer onReady={() => setReady(true)} />
           {!ready ? (
             <div className="h-screen flex justify-center items-center">
-              Hang tight - getting things ready.
+              {hasHydrated ? 'Hang tight - getting things ready.' : 'Loading...'}
             </div>
           ) : (
             <AppContent>{children}</AppContent>

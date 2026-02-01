@@ -18,15 +18,16 @@ export default function SessionInitializer({ onReady }: { onReady: () => void })
         dispatch(setSession(data.session));
         dispatch(setUser(data.session?.user));
 
-        const authRoutes = ['/sign-in', '/sign-up'];
+        const authRoutes = ['/sign-in', '/sign-up', '/auth/callback', '/reset-request', '/reset-password'];
         if (!data.session?.user && !authRoutes.includes(pathname)) {
           router.push('/sign-in');
+        } else if (data.session?.user) {
+          await loadTaskMetaData();
         }
-
-        await loadTaskMetaData();
-        onReady(); // Tell parent we're ready
       } catch (error) {
         console.error('Error fetching session:', (error as any)?.message || 'Unknown error');
+      } finally {
+        onReady(); // Always unblock the UI
       }
     };
     const loadTaskMetaData = async () => {
@@ -46,7 +47,7 @@ export default function SessionInitializer({ onReady }: { onReady: () => void })
       }
     };
     fetchSession();
-  }, [dispatch, supabase, router, pathname]);
+  }, [dispatch, supabase, router, pathname, onReady]);
 
   return null;
 }

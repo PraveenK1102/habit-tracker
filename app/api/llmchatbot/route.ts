@@ -38,12 +38,21 @@ export async function POST(request: Request) {
 }
 
 export async function GET() {
-  return NextResponse.json({
-    status: 'ok',
-    service: 'llmchatbot',
-    note: 'Placeholder endpoint. AI/RAG intentionally removed.',
-    timestamp: new Date().toISOString(),
-  });
+  try {
+    const supabase = createSupabaseServerClient();
+    await requireUser(supabase);
+    return ok(
+      {
+        status: 'ok',
+        service: 'llmchatbot',
+        note: 'Placeholder endpoint. AI/RAG intentionally removed.',
+        timestamp: new Date().toISOString(),
+      },
+      200
+    );
+  } catch (error) {
+    return handleApiError(error);
+  }
 }
 
 

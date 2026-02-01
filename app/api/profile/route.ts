@@ -11,10 +11,10 @@ export async function GET(request: Request) {
     const supabase = createSupabaseServerClient();
     const user = await requireUser(supabase);
     const { data, error } = await supabase
-    .from('profiles')
-    .select('*')
-    .eq('user_id', user.id)
-    .single();
+      .from('profiles')
+      .select('*')
+      .eq('user_id', user.id)
+      .single();
     if (error) {
         return handleApiError(error);
     }
@@ -35,6 +35,7 @@ export async function POST(request: Request) {
       z.object({
         data: z.object({
           user_id: z.string().optional(),
+          id: z.string().optional(),
           name: z.string().trim().max(120).optional(),
           email: z.string().trim().max(254).optional(),
           age: z.union([z.string(), z.number()]).optional(),
@@ -46,14 +47,11 @@ export async function POST(request: Request) {
     );
 
     // Server is the source of truth: never trust `user_id` from client
-    const data = { ...body.data, user_id: user.id };
+    const profilePayload: Record<string, unknown> = { ...body.data, user_id: user.id };
 
     const { error } = await supabase
       .from('profiles')
-      .upsert(
-        data,
-        { onConflict: 'user_id' }
-      );
+      .upsert(profilePayload, { onConflict: 'user_id' });
 
     if (error) {
       return handleApiError(error);

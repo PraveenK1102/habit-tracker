@@ -1,6 +1,6 @@
 'use client';
 
-import { useState,  useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useTheme } from "next-themes";
 import { useRouter } from 'next/navigation';
 import { RootState } from '@/lib/store';
@@ -14,11 +14,15 @@ type Profile = {
   theme: string;
   image: string;
   id?: string;
+  user_id?: string;
 };
 
 export default function Profile() {
   const user = useSelector((state: RootState) => state.session.user);
   const { setTheme } = useTheme();
+  const router = useRouter();
+  const menuRef = useRef<HTMLDivElement | null>(null);
+  const [signOutloading, setSignOutloading] = useState(false);
 
   const [profile, setProfile] = useState<Profile>({
     name: '',
@@ -31,14 +35,16 @@ export default function Profile() {
   });
   const [loading, setLoading] = useState(true);
   const [profileSaving, setProfileSaving] = useState(false);
+  const [menuOpen, setMenuOpen] = useState(false);
+  const [deleteLoading, setDeleteLoading] = useState(false);
 
   const getProfile = async () => {    
     setLoading(true);
     try {
       const response = await fetch('/api/profile', { credentials: 'include' });
-      const data = await response.json().catch(() => null);
+      const { data, error  } = await response.json().catch(() => null);
       if (!response.ok) {
-        throw new Error(data?.error || 'Failed to load profile');
+        throw new Error(error?.message || 'Failed to load profile');
       }
       setProfile(data);
       setTheme(data.theme);
@@ -93,9 +99,47 @@ export default function Profile() {
     }
   };
 
+  const handleDeleteAccount = async () => {
+    if (deleteLoading) return;
+    const confirmed = window.confirm('This will permanently delete your account. This action cannot be undone.');
+    if (!confirmed) return;
+
+    setDeleteLoading(true);
+    try {
+      const response = await fetch('/api/account', {
+        method: 'DELETE',
+        credentials: 'include',
+      });
+      const data = await response.json().catch(() => null);
+      if (!response.ok) {
+        throw new Error(data?.error || 'Failed to delete account');
+      }
+      router.push('/sign-in');
+      router.refresh();
+    } catch (error) {
+      console.error('Error deleting account:', (error as any)?.message || 'Unknown error');
+    } finally {
+      setDeleteLoading(false);
+      setMenuOpen(false);
+    }
+  };
+
   useEffect(() => {
     getProfile();
   }, [user.id]);
+
+  useEffect(() => {
+    if (!menuOpen) return;
+    const handleClickOutside = (event: MouseEvent) => {
+      if (menuRef.current && !menuRef.current.contains(event.target as Node)) {
+        setMenuOpen(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [menuOpen]);
 
   useEffect(() => {    
     if (!profile.image || 
@@ -118,14 +162,78 @@ export default function Profile() {
     }
   }, [profile.gender]);
 
+  const handleSignOut = async () => {
+    setSignOutloading(true);
+    try {
+      const response = await fetch('/api/signout', {
+        method: 'POST',
+        credentials: 'include',
+      });
+      const data = await response.json().catch(() => null);
+      if (!response.ok) {
+        throw new Error(data?.error || 'Failed to sign out');
+      }
+      router.push('/sign-in');
+      router.refresh();
+    } finally {
+      setSignOutloading(false);
+    }
+  };
   return (
     <div className="flex justify-center flex-col lg:w-1/2 flex-1 lg:flex-none bg-white dark:bg-gray-800 ">
       <form onSubmit={handleSubmit} className="flex flex-1 lg:rounded-lg shadow-lg p-8 w-full overflow-y-auto">
         <div className="flex flex-col flex-1 justify-between">
           <div className="space-y-6">
-            <h1 className="text-lg font-bold mb-6 text-center dark:text-white">
-              Profile Settings
-            </h1>
+            <div className="flex items-center justify-between">
+              <h1 className="text-lg font-bold mb-6 text-center dark:text-white flex-1">
+                Profile Settings
+              </h1>
+              <div className="relative" ref={menuRef}>
+                <button
+                  type="button"
+                  aria-label="Profile actions"
+                  onClick={() => setMenuOpen(prev => !prev)}
+                  className="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
+                >
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="20"
+                    height="20"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  >
+                    <circle cx="12" cy="5" r="1" />
+                    <circle cx="12" cy="12" r="1" />
+                    <circle cx="12" cy="19" r="1" />
+                  </svg>
+                </button>
+                {menuOpen && (
+                  <div className="absolute right-0 mt-2 w-48 rounded-md shadow-lg bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 z-10">
+                    <button
+                      type="button"
+                      onClick={handleSignOut}
+                      disabled={signOutloading}
+                      className="w-full text-left px-4 py-2 text-sm white-red-600 hover:bg-gray-50 dark:hover:bg-gray-700 disabled:opacity-50 disabled:cursor-not-allowed"
+                    >
+                      {signOutloading ? 'Signing Out...' : 'Sign Out'}
+                    </button>
+                    <button
+                      type="button"
+                      onClick={handleDeleteAccount}
+                      disabled={deleteLoading}
+                      className="w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-gray-50 dark:hover:bg-gray-700 disabled:opacity-50 disabled:cursor-not-allowed"
+                    >
+                      {deleteLoading ? 'Deleting...' : 'Delete account'}
+                    </button>
+                    
+                  </div>
+                )}
+              </div>
+            </div>
             <div className="flex flex-col items-center space-y-4">
               <div className="relative">
                 <img
@@ -267,32 +375,6 @@ export default function Profile() {
           </div>
         </div>
       </form>
-      {/* <div className="flex justify-end">
-        <button
-          type="button"
-          onClick={async () => {
-            setSignOutloading(true);
-            try {             
-              const { error } = await supabase.auth.signOut();
-              if (error) {
-                console.error('Error signing out:', error);
-              } else {
-                router.push('/sign-in');
-                router.refresh();
-              }
-            } finally {
-              setTimeout(() => {
-                setSignOutloading(false);
-              }, 2000);      
-            }
-          }}
-          className={`bg-red-500 text-white py-2 px-4 rounded-md transition-colors ${
-            signOutloading ? 'opacity-50 cursor-not-allowed' : 'hover:bg-red-600'
-          }`}
-        >
-          {signOutloading ? 'Signing Out...' : 'Sign Out'}
-        </button>
-      </div> */}
     </div>
 
   );

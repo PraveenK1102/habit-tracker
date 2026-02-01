@@ -1,24 +1,27 @@
-import { NextResponse } from 'next/server';
 import { createSupabaseServerClient } from '@/lib/supabaseServer';
 import { requireUser } from '@/lib/api/auth';
 import { fail, handleApiError, ok, readJsonValidated } from '@/lib/api/http';
+import { z } from 'zod';
 
 export async function POST(request: Request) {
   try {
-    const { task_id, date, value = 1, unit } = await request.json();
-    if (!task_id || !date) {
-      return NextResponse.json(
-        { error: 'Missing required fields: task_id or date' },
-        { status: 400 }
-      );
-    }
+    const body = await readJsonValidated(
+      request,
+      z.object({
+        task_id: z.string().trim().min(1),
+        date: z.string().trim().min(1),
+        value: z.number().optional(),
+        unit: z.string().trim().max(50).optional(),
+      })
+    );
+    const value = body.value ?? 1;
     const supabase = createSupabaseServerClient();
     const user = await requireUser(supabase);
 
     const { data: taskRow, error: taskErr } = await supabase
       .from('tasks')
       .select('id')
-      .eq('id', task_id)
+      .eq('id', body.task_id)
       .eq('user_id', user.id)
       .single();
 
@@ -28,8 +31,8 @@ export async function POST(request: Request) {
     const { data: existingTracking, error: checkError } = await supabase
       .from('task_tracking')
       .select('*')
-      .eq('task_id', task_id)
-      .eq('date', date)
+      .eq('task_id', body.task_id)
+      .eq('date', body.date)
       .single();
 
     if (checkError && checkError.code !== 'PGRST116') { // PGRST116 = no rows returned
@@ -45,9 +48,10 @@ export async function POST(request: Request) {
         .update({ 
           value,
           updated_at: new Date().toISOString(),
-          unit
+          unit: body.unit
         })
         .eq('id', existingTracking.id)
+        .eq('task_id', body.task_id)
         .select()
         .single();
         
@@ -60,10 +64,10 @@ export async function POST(request: Request) {
       const { data: taskTrackingData, error } = await supabase
         .from('task_tracking')
         .insert({
-          task_id,
-          date,
+          task_id: body.task_id,
+          date: body.date,
           value,
-          unit
+          unit: body.unit
         })
         .select()
         .single();
