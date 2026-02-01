@@ -23,14 +23,8 @@ export async function POST(request: Request) {
         email,
         password,
         name: safeOptionalText({ max: 120 }),
-        phone: z.string().trim().optional(),
       })
     );
-    const normalizedPhone = body.phone?.trim();
-    const phone = normalizedPhone ? normalizedPhone : undefined;
-    if (phone && !/^\+?[1-9]\d{7,14}$/.test(phone)) {
-      return fail('Invalid phone number', 400, 'INVALID_PHONE');
-    }
 
     // Admin pre-check: use Service Role to see if user already exists in auth
 
@@ -49,51 +43,6 @@ export async function POST(request: Request) {
     const { data, error } = await supabase.auth.signUp({ email: body.email, password: body.password });
     if (error) {
       const msg = (error.message || '').toLowerCase();
-      if (msg.includes('rate') && msg.includes('limit')) {
-        if (!phone) {
-          return fail(
-            'Email rate limit exceeded. Please provide a phone number to continue via SMS.',
-            429,
-            'EMAIL_RATE_LIMITED'
-          );
-        }
-        const { data: otpData, error: otpError } = await supabase.auth.signInWithOtp({
-          phone,
-          options: { shouldCreateUser: true },
-        });
-        if (otpError) {
-          return fail(otpError.message || 'Failed to send SMS', 400, 'SMS_SIGNUP_FAILED');
-        }
-        const otpUserId =
-          (otpData as { user: { id: string } | null } | null)?.user?.id ?? null;
-        if (otpUserId && admin !== null) {
-          const { error: smsProfileError } = await admin
-            .from('profiles')
-            .upsert(
-              {
-                user_id: otpUserId,
-                email: body.email,
-                name: body.name || 'User',
-              },
-              { onConflict: 'user_id' }
-            );
-          if (smsProfileError) {
-            await admin.auth.admin.deleteUser(otpUserId);
-            return fail(`Sign up failed: ${smsProfileError.message}`, 500, 'PROFILE_CREATE_FAILED');
-          }
-        }
-        if (otpData?.session) {
-          await supabase.auth.signOut();
-        }
-        return ok(
-          {
-            channel: 'sms',
-            otp_required: true,
-            message: 'SMS sent. Enter the code to confirm your account.',
-          },
-          200
-        );
-      }
       if (data.user && msg.includes('already') && msg.includes('registered')) {
         return NextResponse.json({ ok: false, error: 'User already exists', code: 'ALREADY_EXISTS' }, { status: 409 });
       }
