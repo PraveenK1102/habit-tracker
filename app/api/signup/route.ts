@@ -8,7 +8,6 @@ import { getAuthUserByEmail } from '@/lib/api/authUserLookup';
 import { getAdmin } from '@/lib/getAdmin';
 import { getAppBaseUrl, getAppName, getAppSupportEmail } from '@/lib/common';
 
-const admin = getAdmin();
 const appName = getAppName();
 const supportEmail = getAppSupportEmail();
 
@@ -26,8 +25,11 @@ export async function POST(request: Request) {
       })
     );
 
+    const admin = getAdmin();
+    if (admin === null) {
+      return fail('Service role key not configured', 500, 'MISSING_SERVICE_ROLE');
+    }
     // Admin pre-check: use Service Role to see if user already exists in auth
-
     if (admin !== null) {
       const { data: authUser, error: authUserError } = await getAuthUserByEmail(admin, body.email);
       if (!authUserError && authUser) {

@@ -7,7 +7,6 @@ import { email, password } from '@/lib/api/schemas';
 import { handleApiError, ok, readJsonValidated } from '@/lib/api/http';
 import { getAuthUserByEmail, getProfileByUserId } from '@/lib/api/authUserLookup';
 import { getAdmin } from '@/lib/getAdmin';
-const admin = getAdmin();
 // Force dynamic rendering
 export const dynamic = 'force-dynamic';
 
@@ -21,6 +20,7 @@ export async function POST(request: Request) {
       })
     );
 
+    const admin = getAdmin();
     if (admin !== null) {
       const { data: authUser, error: authUserError } = await getAuthUserByEmail(admin, body.email);
       if (!authUserError && !authUser) {

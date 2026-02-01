@@ -1,7 +1,5 @@
 import { Resend } from 'resend';
 
-const resend = new Resend(process.env.RESEND_API_KEY);
-
 export async function sendInviteEmail({
   to,
   senderName,
@@ -11,6 +9,11 @@ export async function sendInviteEmail({
   senderName: string;
   inviteId: string;
 }) {
+  const apiKey = process.env.RESEND_API_KEY;
+  if (!apiKey) {
+    throw new Error('RESEND_API_KEY not configured');
+  }
+  const resend = new Resend(apiKey);
   const base = process.env.APP_BASE_URL;
 
   await resend.emails.send({

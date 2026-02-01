@@ -8,11 +8,10 @@ import { getAuthUserByEmail } from '@/lib/api/authUserLookup';
 import { getAdmin } from '@/lib/getAdmin';
 
 
-const supabase = createSupabaseServerClient();
-const admin = getAdmin();
-
 export async function POST(req: Request) {
   try {
+    const supabase = createSupabaseServerClient();
+    const admin = getAdmin();
     if (admin === null) {
       return fail('Service role key not configured', 500, 'MISSING_SERVICE_ROLE');
     }
@@ -26,11 +25,11 @@ export async function POST(req: Request) {
 
     if (email === user.email) return fail('Cannot invite yourself', 400);
 
-    const isUserExists = await checkIfUserExists(email);
+    const isUserExists = await checkIfUserExists(admin, email);
     if (!isUserExists) {
       return fail('Invited user not found', 404, 'INVITED_USER_NOT_FOUND');
     }
-    const existingInvite = await checkIfAnyInvitesExists(user.id, email);
+    const existingInvite = await checkIfAnyInvitesExists(supabase, user.id, email);
     if (existingInvite) {
       return fail('Invite already sent', 400, 'INVITE_ALREADY_SENT');
     }
@@ -53,7 +52,7 @@ export async function POST(req: Request) {
   }
 }
 
-async function checkIfAnyInvitesExists(userId: string, email: string) {
+async function checkIfAnyInvitesExists(supabase: ReturnType<typeof createSupabaseServerClient>, userId: string, email: string) {
   const { data, error } = await supabase
     .from('connection_requests')
     .select('id')
@@ -67,7 +66,7 @@ async function checkIfAnyInvitesExists(userId: string, email: string) {
   return data;
 }
 
-async function checkIfUserExists(email: string) {
+async function checkIfUserExists(admin: NonNullable<ReturnType<typeof getAdmin>>, email: string) {
   const { data: authUser, error: authUserError } = await getAuthUserByEmail(admin, email);
   if (!authUserError && !authUser) {
     return false;
