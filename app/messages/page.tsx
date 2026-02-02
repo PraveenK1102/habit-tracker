@@ -1,7 +1,7 @@
 'use client';
 
-import { Input } from '@/components/ui/input';
 import { useState, useEffect } from 'react';
+import { sendConfirmationEmail } from '@/lib/email/sendConfirmationEmail';
 
 type Conversation = {
   id: string;
@@ -94,7 +94,7 @@ export default function Messages() {
     setOpen(false)
   }
   const sendInvite = async (email) => {
-    const data = await fetch('api/invites', {
+    const data = await fetch('/api/invites', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ email }),
@@ -106,12 +106,25 @@ export default function Messages() {
         message: response.data.message,
       });
       setIsInviteSent(true);
+      close();
+      const appBaseUrl = process.env.NEXT_PUBLIC_APP_BASE_URL;
+      let actionLink = `${appBaseUrl}/invites/accept?inviteId=${response.data.invite_id}`;
+      let emailSent = await sendConfirmationEmail({ to: email, confirmationLink: actionLink });
+      if (!emailSent) {
+        setInviteSentMessage({
+          type: 'error',
+          message: 'Failed to send confirmation email',
+        });
+        setIsInviteSent(false);
+        close();
+      }
     } else {
       setInviteSentMessage({
         type: 'error',
         message: response.error || response.statusText,
       });
       setIsInviteSent(false);
+      close();
     }
   }
   const Modal = () => {
